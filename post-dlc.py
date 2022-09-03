@@ -29,6 +29,7 @@ class post_dlc():
                 self.framecount = None
                 self.frameTimes = None
                 self.filename = None
+                self.savedFrames = None
 
         def upload_file(self, doc=None, dlc_file=None, video_file=None):
 
@@ -48,12 +49,14 @@ class post_dlc():
 
                 self.filename = video_file
 
-
                 self.df = pd.read_csv(dlc_file, skiprows=[1, 2])
                 self.df_head = pd.read_csv(dlc_file, skiprows=lambda x: x not in [0, 1, 2])
                 self.df_bsoid = self.df.copy()
 
+                self.savedFrames = pd.read_csv(video_file[0:-4] + "_savedframes.csv")["savedFrames"].tolist()
 
+        def setup(self):
+                setupNE.setupNE(self.doc, self.savedFrames)
 
         def pix2mm(self, ratio=None, origin=None):
                 self.ratio = ratio
@@ -173,6 +176,7 @@ class post_dlc():
         
         def post_dlc(self):
                 self.upload_file()
+                self.setup()
                 self.pix2mm()
                 self.feature_calc()
                 # self.filter()

@@ -3,8 +3,9 @@ import helper
 import matplotlib.pyplot as plt
 import numpy as np
 import nex 
+import pandas as pd 
 
-def videoProcessing(filepath, doc):
+def videoProcessing(filepath):
 
     input_vid = cv2.VideoCapture(filepath)
 
@@ -92,11 +93,9 @@ def videoProcessing(filepath, doc):
     input_vid.release()
     output_vid.release()
 
-    frameTimes = [v for i, v in enumerate(doc["frameTimes"].Timestamps()) if i in savedFrames]
-    doc['frameTimes'].SetTimestamps(frameTimes)
-    nex.SaveDocument(doc)
-
-    print(frames, len(frameTimes))
+    df = pd.DataFrame(data={"savedFrames": savedFrames})
+    df.to_csv(filepath[0:-4] + "_savedframes.csv")
+    
 
 if __name__ == '__main__':
     directory = helper.search_for_directory(titles="Select the directory where the videos are located.")

@@ -18,7 +18,7 @@ def findChannel(name):
     except:
         return None
 
-def setupNE(doc): 
+def setupNE(doc, savedFrames): 
 # ==========================================================================================================
 # REASSIGN DUPLICATE SIGNALS
 # ==========================================================================================================
@@ -71,10 +71,13 @@ def setupNE(doc):
     doc["saveStartTime"] = nex.SelectTrials(doc["frameBurstOnsets"], "2")
     doc["frameTimes"] = nex.Sync(doc["frameTimesOrig"], doc["saveStartTime"], -0.01, 10000)
 
-    temp = doc["frameTimes"].Timestamps()
-    if temp[1] > temp[0] + 0.015:
-        temp.pop(0)
-    doc["frameTimes"].SetTimestamps(temp)
+    frameTimes = doc["frameTimes"].Timestamps()
+    if frameTimes[1] > frameTimes[0] + 0.015:
+        frameTimes.pop(0)
+
+    frameTimes = [v for i, v in enumerate(doc["frameTimes"].Timestamps()) if i in savedFrames]
+    doc['frameTimes'].SetTimestamps(frameTimes)
+    doc["frameTimes"].SetTimestamps(frameTimes)
 
     nex.SaveDocument(doc)
 
