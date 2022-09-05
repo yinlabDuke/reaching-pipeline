@@ -17,6 +17,14 @@ Then go to the reaching directory:
 ```
 (DEEPLABCUT) C:/Users/username> cd reaching-pipeline
 ```  
+**IMPORTANT**
+File structure must be exactly as follows:
+- reaching-pipeline
+  - neuroexplorer
+  - videos
+  - bsoid
+
+In "neuroexplorer", add all the .nev files. In "videos", add all the videos. Eventually, the dlc files will also be added to the "videos" directory. Additionally, the file names of corresponding neuroexplorer and video files must be identical, except the extension name. 
 ## Usage
 ### Video preprocessing
 This is where you can trim out frames where the animal is not present in the recording. You can upload multiple videos as long as they're in the same directory.  
@@ -47,15 +55,6 @@ Tips for DLC:
 
 ### Post-DLC 
 This is where the pixels produced by DLC are converted to mm, and various features are calculated to be imported into NeuroExplorer. 
-
-**IMPORTANT**
-File structure must be exactly as follows:
-- reaching-pipeline
-  - neuroexplorer
-  - videos
-  - bsoid
-
-In "neuroexplorer", add all the .nev files. In "videos", add all the videos. Eventually, the dlc files will also be added to the "videos" directory. Additionally, the file names of corresponding neuroexplorer and video files must be identical, except the extension name. 
 
 ### B-SOiD 
 Follow the instructions [here](https://bsoid.org)
