@@ -26,8 +26,10 @@ Note: There may be cases when the automated filtering process incorrectly filter
 After you have preprocessed the videos, they're ready for DLC. You can either use the command line or the GUI version.
 
 ##### Command-line version:
-  (DEEPLABCUT) C:/Users/username/reaching-pipeline> python dlc.py
-  
+'''
+(DEEPLABCUT) C:/Users/username/reaching-pipeline> python dlc.py
+'''
+
 ##### GUI version:
   (DEEPLABCUT) C:/Users/username/reaching-pipeline> python -m deeplabcut
   
