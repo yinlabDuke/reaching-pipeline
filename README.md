@@ -18,7 +18,7 @@ Then go to the reaching directory:
 (DEEPLABCUT) C:/Users/username> cd reaching-pipeline
 ```  
 ## Usage
-#### Video preprocessing
+### Video preprocessing
 This is where you can trim out frames where the animal is not present in the recording. You can upload multiple videos as long as they're in the same directory.  
 ```
 (DEEPLABCUT) C:/Users/username/reaching-pipeline> python pre-dlc.py
@@ -26,15 +26,15 @@ This is where you can trim out frames where the animal is not present in the rec
 Note: There may be cases when the automated filtering process incorrectly filters too many frames. If this happens, you can manually decide on the threshold:
   TODO
 
-#### DLC
+### DLC
 After you have preprocessed the videos, they're ready for DLC. You can either use the command line or the GUI version.
 
-##### Command-line version:
+#### Command-line version:
 ```
 (DEEPLABCUT) C:/Users/username/reaching-pipeline> python dlc.py
 ```
 
-##### GUI version:
+#### GUI version:
 ```
 (DEEPLABCUT) C:/Users/username/reaching-pipeline> python -m deeplabcut
 ```  
@@ -45,7 +45,7 @@ Tips for DLC:
 + When reaching hand is not visible, make your best guess as to where it will be. If you are unable to make a good guess, skip the label.
 + After training is complete, you should refine labels and check how accurate the labels are. Consider retraining after adjusting if labels are misplaced.
 
-#### Post-DLC 
+### Post-DLC 
 This is where the pixels produced by DLC are converted to mm, and various features are calculated to be imported into NeuroExplorer. 
 
 **IMPORTANT**
@@ -57,11 +57,11 @@ File structure must be exactly as follows:
 
 In "neuroexplorer", add all the .nev files. In "videos", add all the videos. Eventually, the dlc files will also be added to the "videos" directory. Additionally, the file names of corresponding neuroexplorer and video files must be identical, except the extension name. 
 
-#### B-SOiD 
+### B-SOiD 
 Follow the instructions [here](https://bsoid.org)
 
 After you have run B-SOiD, move all the csv filese with the predicted labels to the "bsoid" directory. Then run:
 ```
-(DEEPLABCUT) C:/Users/username/reaching-pipeline> python bsoid.py
+(DEEPLABCUT) C:/Users/username/reaching-pipeline> python post-bsoid.py
 ```
 This will add the bsoid labels to the corresponding neuroexplorer file. 
