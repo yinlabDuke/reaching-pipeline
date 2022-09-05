@@ -54,7 +54,9 @@ Tips for DLC:
 
 ### Post-DLC 
 This is where the pixels produced by DLC are converted to mm, and various features are calculated to be imported into NeuroExplorer. 
-
+```
+(DEEPLABCUT) C:/Users/username/reaching-pipeline> python post-dlc.py
+```
 ### B-SOiD 
 Follow the instructions [here](https://bsoid.org)
 
