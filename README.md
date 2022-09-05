@@ -57,6 +57,8 @@ This is where the pixels produced by DLC are converted to mm, and various featur
 ```
 (DEEPLABCUT) C:/Users/username/reaching-pipeline> python post-dlc.py
 ```
+Note: You can only run post-dlc one file at a time. Working on processing multiple files concurrently. 
+
 ### B-SOiD 
 Follow the instructions [here](https://bsoid.org)
 
