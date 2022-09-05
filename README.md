@@ -18,6 +18,7 @@ Then go to the reaching directory:
 (DEEPLABCUT) C:/Users/username> cd reaching-pipeline
 ```  
 **IMPORTANT**
+
 File structure must be exactly as follows:
 - reaching-pipeline
   - neuroexplorer
