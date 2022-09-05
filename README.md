@@ -1,5 +1,4 @@
 # Reaching Task Data Analysis Pipeline
-***
 
 ## Installation
 Ensure you have DLC installed. Click [here](https://deeplabcut.github.io/DeepLabCut/docs/installation.html) for more information. 
