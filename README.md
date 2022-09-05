@@ -20,8 +20,9 @@ Then go to the reaching directory:
 ## Usage
 #### Video preprocessing
 This is where you can trim out frames where the animal is not present in the recording. You can upload multiple videos as long as they're in the same directory.  
-  (DEEPLABCUT) C:/Users/username/reaching-pipeline> python pre-dlc.py
-  
+```
+(DEEPLABCUT) C:/Users/username/reaching-pipeline> python pre-dlc.py
+```  
 Note: There may be cases when the automated filtering process incorrectly filters too many frames. If this happens, you can manually decide on the threshold:
   TODO
 
@@ -34,8 +35,9 @@ After you have preprocessed the videos, they're ready for DLC. You can either us
 ```
 
 ##### GUI version:
-  (DEEPLABCUT) C:/Users/username/reaching-pipeline> python -m deeplabcut
-  
+```
+(DEEPLABCUT) C:/Users/username/reaching-pipeline> python -m deeplabcut
+```  
 Tips for DLC: 
 + You will have to create a new config file if you do not already have a model. 
 + Recommend at least 100 frames labelled for one video, and 30 for the rest.
@@ -59,5 +61,7 @@ In "neuroexplorer", add all the .nev files. In "videos", add all the videos. Eve
 Follow the instructions [here](https://bsoid.org)
 
 After you have run B-SOiD, move all the csv filese with the predicted labels to the "bsoid" directory. Then run:
-  (DEEPLABCUT) C:/Users/username/reaching-pipeline> python bsoid.py
+```
+(DEEPLABCUT) C:/Users/username/reaching-pipeline> python bsoid.py
+```
 This will add the bsoid labels to the corresponding neuroexplorer file. 
