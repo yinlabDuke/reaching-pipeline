@@ -7,7 +7,7 @@ To use the pipeline, type:
 ```
 (base) C:/Users/username> git clone git@github.com:yinlabDuke/reaching-pipeline.git
 ```  
-Then activate the DLC environemnt and install nex:
+Then activate the DLC environment and install nex:
 ```
 (base) C:/Users/username> activate DEEPLABCUT
 (DEEPLABCUT) C:/Users/username> pip install nex 
