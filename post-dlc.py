@@ -16,7 +16,7 @@ This pipeline takes DLC csv file and its corresponding video to
 '''
 
 class post_dlc():
-        def __init__(self):
+        def __init__(self, dlc_file=None, ratio=None, origin=None):
                 self.df = None
                 self.df_head = None
                 self.df_bsoid = None
@@ -24,21 +24,23 @@ class post_dlc():
                 self.df_cont = None
                 self.img = None
                 self.fps = None
-                self.ratio = None
+                self.ratio = ratio
+                self.origin = origin
                 self.doc = None
                 self.framecount = None
                 self.frameTimes = None
                 self.filename = None
                 self.savedFrames = None
+                self.dlc_file = dlc_file
 
         def upload_file(self, doc=None, dlc_file=None, video_file=None):
 
-                if dlc_file == None:
-                        dlc_file = helper.search_for_file_path(titles="Upload the DLC file.", filetypes=[('dlc', '*.csv')])[0]
+                if self.dlc_file == None:
+                        self.dlc_file = helper.search_for_file_path(titles="Upload the DLC file.", filetypes=[('dlc', '*.csv')])[0]
 
                 if doc == None:
-                        ne_file = dlc_file.replace('videos', 'neuroexplorer')
-                        i = dlc_file.index('_modified') - len(dlc_file) 
+                        ne_file = self.dlc_file.replace('videos', 'neuroexplorer')
+                        i = self.dlc_file.index('_modified') - len(self.dlc_file) 
                         ne_file = ne_file[0:i] + '.nex5'
                         self.doc = nex.OpenDocument(ne_file)
 
@@ -49,8 +51,8 @@ class post_dlc():
 
                 self.filename = video_file
 
-                self.df = pd.read_csv(dlc_file, skiprows=[1, 2])
-                self.df_head = pd.read_csv(dlc_file, skiprows=lambda x: x not in [0, 1, 2])
+                self.df = pd.read_csv(self.dlc_file, skiprows=[1, 2])
+                self.df_head = pd.read_csv(self.dlc_file, skiprows=lambda x: x not in [0, 1, 2])
                 self.df_bsoid = self.df.copy()
 
                 self.savedFrames = pd.read_csv(video_file[0:-4] + "_savedframes.csv")["savedFrames"].tolist()
@@ -58,18 +60,17 @@ class post_dlc():
         def setup(self):
                 setupNE.setupNE(self.doc, self.savedFrames)
 
-        def pix2mm(self, ratio=None, origin=None):
-                self.ratio = ratio
-                if self.ratio == None and origin == None:
+        def pix2mm(self):
+                if self.ratio == None:
                         print("Left click two pixels for calibration. Right click for reference point.\n")
-                        origin, cal_pixels = helper.get_pixel(self.img)
+                        self.origin, cal_pixels = helper.get_pixel(self.img)
                         pix_dist = math.dist(cal_pixels[0], cal_pixels[1])
 
                         mm = float(input("Please enter the distance between the two calibration pixels in mm.\n"))
                         self.ratio = mm / pix_dist
 
-                self.df.iloc[:, range(1, self.df.shape[1], 3)] = self.df.iloc[:, range(1, self.df.shape[1], 3)].applymap(lambda x: (x - origin[0]) * self.ratio)
-                self.df.iloc[:, range(2, self.df.shape[1], 3)] = self.df.iloc[:, range(2, self.df.shape[1], 3)].applymap(lambda y: (origin[1] - y) * self.ratio)
+                self.df.iloc[:, range(1, self.df.shape[1], 3)] = self.df.iloc[:, range(1, self.df.shape[1], 3)].applymap(lambda x: (x - self.origin[0]) * self.ratio)
+                self.df.iloc[:, range(2, self.df.shape[1], 3)] = self.df.iloc[:, range(2, self.df.shape[1], 3)].applymap(lambda y: (self.origin[1] - y) * self.ratio)
 
         def dist_calc(self, body1, body2):
                 return [math.dist([self.df.iat[i, body1], self.df.iat[i, body1+1]], 
@@ -157,7 +158,6 @@ class post_dlc():
         #         self.df_bsoid = pd.concat([self.df_head, self.df_bsoid])
         
         def export_bsoid_file(self):
-                print("Upload which directory you would like to save the bsoid file\n")
                 i1 = self.filename.index("videos") 
                 i2 = i1 - len(self.filename)
                 bsoid_file = self.filename[0:i2] + 'bsoid/' + self.filename[i1+7:-4] + ".csv"
@@ -185,8 +185,23 @@ class post_dlc():
 
 
 if __name__ == "__main__":
-        post_dlc = post_dlc()
-        post_dlc.post_dlc()
+        dlc_files = helper.search_for_file_path(titles="Please select dlc files", filetypes=[('csv', '*filtered.csv')])
+        dlc_files = [f for f in dlc_files]
+
+        cnt = 0
+        ratio = None
+        origin = None
+        for f in dlc_files:
+                if (cnt != 0):
+                        post = post_dlc(dlc_file=f, ratio=ratio, origin=origin)
+                        post.post_dlc()
+                else:
+                        post = post_dlc(dlc_file=f, ratio=ratio, origin=origin)
+                        post.post_dlc()
+                        ratio = post.ratio
+                        origin = post.origin
+                        cnt+=1
+        print("Done!")
 
 
 

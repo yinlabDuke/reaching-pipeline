@@ -26,10 +26,12 @@ else:
 if (addVideos):
     videos = helper.search_for_file_path(titles="Upload all the videos you want to analyze.\n")
     videos = [f for f in videos]
-    dlc.add_new_videos(videos, copy_vidoes=False)
+    print(videos)
+    dlc.add_new_videos(config_path, videos, copy_videos=False)
     
 if (labelVideos):
-    dlc.extract_frames(config_path, mode='automatic', algo='kmeans', userfeedback=False)
+    if (int(input("Do you want to extract frames? 1 for yes, 0 for no.\n"))):
+        dlc.extract_frames(config_path, mode='automatic', algo='kmeans', userfeedback=False)
     dlc.label_frames(config_path)
 
 if (training):
