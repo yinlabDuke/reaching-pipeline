@@ -23,7 +23,7 @@ File structure must be exactly as follows:
 In "neuroexplorer", add all the .nev files. In "videos", add all the videos. Eventually, the dlc files will also be added to the "videos" directory. Additionally, the file names of corresponding neuroexplorer and video files must be identical, except the extension name. 
 ## Usage
 
-Activatethe DLC environment:
+Activate the DLC environment:
 ```
 (base) C:/Users/username> activate DEEPLABCUT
 ```  
