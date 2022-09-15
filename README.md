@@ -3,19 +3,16 @@
 ## Installation
 Ensure you have DLC installed. Click [here](https://deeplabcut.github.io/DeepLabCut/docs/installation.html) for more information. 
 
-To use the pipeline, type:
+To install the pipeline, type:
 ```
 (base) C:/Users/username> git clone git@github.com:yinlabDuke/reaching-pipeline.git
 ```  
-Then activate the DLC environemnt and install nex:
+Then activate the DLC environment and install nex:
 ```
 (base) C:/Users/username> activate DEEPLABCUT
 (DEEPLABCUT) C:/Users/username> pip install nex 
 ```  
-Then go to the reaching directory:
-```
-(DEEPLABCUT) C:/Users/username> cd reaching-pipeline
-```  
+
 **IMPORTANT**:
 File structure must be exactly as follows:
 - reaching-pipeline
@@ -25,6 +22,16 @@ File structure must be exactly as follows:
 
 In "neuroexplorer", add all the .nev files. In "videos", add all the videos. Eventually, the dlc files will also be added to the "videos" directory. Additionally, the file names of corresponding neuroexplorer and video files must be identical, except the extension name. 
 ## Usage
+
+Activate the DLC environment:
+```
+(base) C:/Users/username> activate DEEPLABCUT
+```  
+Then go to the reaching directory:
+```
+(DEEPLABCUT) C:/Users/username> cd reaching-pipeline
+```  
+
 ### Video preprocessing
 This is where you can trim out frames where the animal is not present in the recording. You can upload multiple videos as long as they're in the same directory.  
 ```
@@ -54,6 +61,9 @@ Tips for DLC:
 
 ### Post-DLC 
 This is where the pixels produced by DLC are converted to mm, and various features are calculated to be imported into NeuroExplorer. 
+
+**IMPORTANT**: Remember to split the markers of every NeuroExplorer file and save as .nex5 file before running post-dlc.py! 
+
 ```
 (DEEPLABCUT) C:/Users/username/reaching-pipeline> python post-dlc.py
 ```
