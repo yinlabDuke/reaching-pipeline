@@ -136,26 +136,6 @@ class post_dlc():
                 self.d_events = {"reachPeak_timestamps": reachPeak_timestamps}
                 x = self.df.iloc[:, 0].tolist()
                 y = hand2spout_dist
-
-        # def filter(self):
-        #         check = 0
-        #         cutoff = 0
-        #         while (check != 1):
-        #                 cutoff = helper.likelihood_cutoff(self.df, self.df_head, int(input("Enter the percentile threshold for the likelihood values.\n")))
-        #                 check = int(input("Are you happy with the cutoff? Enter 1 for yes, 0 for no.\n"))
-
-        #         for i in range(3, self.df.shape[1], 3):
-        #                 self.df_bsoid = self.df_bsoid[self.df_bsoid.iloc[:, i] >= cutoff]
-
-        #         df_bsoid_index = self.df_bsoid.index.tolist()
-        #         missingrows = []
-        #         for i in range(df_bsoid_index[-1] + 1):
-        #                 if (i not in df_bsoid_index):
-        #                         missingrows.append(i)
-
-        #         self.df_cont = self.df_cont.drop(missingrows)
-
-        #         self.df_bsoid = pd.concat([self.df_head, self.df_bsoid])
         
         def export_bsoid_file(self):
                 i1 = self.filename.index("videos") 
@@ -179,7 +159,6 @@ class post_dlc():
                 self.setup()
                 self.pix2mm()
                 self.feature_calc()
-                # self.filter()
                 self.export_bsoid_file()
                 self.export_neuroexplorer()
 

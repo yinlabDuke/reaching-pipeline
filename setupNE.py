@@ -75,10 +75,10 @@ def setupNE(doc, savedFrames):
     if frameTimes[1] > frameTimes[0] + 0.015:
         frameTimes.pop(0)
 
-    frameTimes = [v for i, v in enumerate(doc["frameTimes"].Timestamps()) if i in savedFrames]
-    doc['frameTimes'].SetTimestamps(frameTimes)
-    doc["frameTimes"].SetTimestamps(frameTimes)
-
+    frameTimesPost = [v for i, v in enumerate(doc["frameTimes"].Timestamps()) if i in savedFrames]
+    doc["frameTimesPrior"] = nex.NewEvent(doc, 0)
+    doc["frameTimesPrior"].SetTimestamps(frameTimes)
+    doc["frameTimes"].SetTimestamps(frameTimesPost)
     nex.SaveDocument(doc)
 
 if __name__ == '__main__':

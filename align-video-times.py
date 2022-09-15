@@ -12,7 +12,7 @@ def alignVideo(doc, vidPath):
 
     laserTimes = doc['beamBreakTimesLaser'].Timestamps()
     laserTimesFrame = []
-    frameTimes = doc["frameTimesRec"].Timestamps()
+    frameTimes = doc["frameTimesPrior"].Timestamps()
     for i in laserTimes:
         temp = frameTimes.copy()
         temp = filter(lambda x: x > i - 0.005 and x < i + 0.005, temp)
@@ -59,7 +59,7 @@ def alignVideo(doc, vidPath):
     print("Finished extracting frames!")
 
 if __name__ == '__main__':
-    vidPath = helper.search_for_file_path(titles='Upload all the video you want to align', filetypes=[('video', '*.mp4')])
+    vidPath = helper.search_for_file_path(titles='Upload all the video you want to align', filetypes=[('video', '*lay.mp4')])
     vidPath = [i for i in vidPath]
 
     for v in vidPath:
