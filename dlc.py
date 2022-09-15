@@ -3,13 +3,14 @@ import deeplabcut as dlc
 
 createConfig = int(input("Are you creating a new configuration? Enter 1 for yes, 0 for no.\n"))
 if (createConfig == 0):
-    addVideos = int(input("Are you adding new videos? Enter 1 for yes, 0 for no."))
+    addVideos = int(input("Are you adding new videos? Enter 1 for yes, 0 for no.\n"))
 else:
     addVideos = 0
 labelVideos = int(input("Are you labeling new videos? Enter 1 for yes, 0 for no.\n"))
 training = int(input("Are you training a new model?\n"))
 analyzeVideo = int(input("Are you predicting labels for new videos? Enter 1 for yes, 0 for no.\n"))
 refine = int(input("Would you like the extract outlier frames, refine your labels and train the dataset again? Enter 1 for yes, 0 for no.\n"))
+createVideo = int(input("Would you like to create a labelled video?\n"))
 
 if (createConfig):
     projectName = input("What is the project name?\n")
@@ -41,7 +42,7 @@ if (training):
         dlc.evaluate_network(config_path,Shuffles=[1], plotting=True)
 
 if (analyzeVideo):
-    videos = helper.search_for_file_path(titles="Upload all the videos to analyze\n")
+    videos = helper.search_for_file_path(titles="Upload all the videos to analyze\n", filetypes=[('video', 'mp4')])
     videos = [f for f in videos]
     dlc_dest = helper.search_for_directory(titles="Find the directory to find the dlc files in.")
     dlc.analyze_videos(config_path, videos, videotype='.mp4', destfolder=dlc_dest, save_as_csv=True)
@@ -50,9 +51,9 @@ if (analyzeVideo):
 
 if (refine):
     if (analyzeVideo == 0):
-        videos = helper.search_for_file_path(titles="Upload all the videos to analyze\n")
+        videos = helper.search_for_file_path(titles="Upload all the videos to analyze\n", filetypes=[('video', '*.mp4')])
 
-    # dlc.extract_outlier_frames(config_path, videos, outlieralgorithm='uncertain', comparisonbodyparts=['hand', 'nonreachinghand', "mouth"], automatic=True)
+    dlc.extract_outlier_frames(config_path, videos, outlieralgorithm='uncertain', comparisonbodyparts=['hand', 'nonreachinghand', "mouth", "spout", "corner"], automatic=True)
     
     refine = 1
     while (refine):
@@ -62,6 +63,11 @@ if (refine):
         dlc.merge_datasets(config_path)
         dlc.create_training_dataset(config_path, augmenter_type='imgaug')
         dlc.train_network(config_path, maxiters=250000)
+
+if (createVideo):
+    videos = helper.search_for_file_path(titles="Upload all the videos to analyze\n")
+    videos = [f for f in videos]
+    dlc.create_labeled_video(config_path, videos, save_frames=False, filtered=True)
 
 # if (int(input("Would you like to create labeled videos? Enter 1 for yes, 0 for no.\n"))):
 #     dlc.create_labeled_video(config_path, [helper.search_for_directory()], videotype='.mp4')
