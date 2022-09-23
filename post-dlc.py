@@ -6,6 +6,8 @@ import pandas as pd
 import nex
 import matplotlib.pyplot as plt
 import sys
+import numpy as np
+from scipy.interpolate import interp1d
 sys.path.append('C:\\ProgramData\\Nex Technologies\\NeuroExplorer 5 x64')
 
 '''
@@ -32,6 +34,7 @@ class post_dlc():
                 self.filename = None
                 self.savedFrames = None
                 self.dlc_file = dlc_file
+                self.bodyparts = {}
 
         def upload_file(self, doc=None, dlc_file=None, video_file=None):
 
@@ -57,8 +60,77 @@ class post_dlc():
 
                 self.savedFrames = pd.read_csv(video_file[0:-4] + "_savedframes.csv")["savedFrames"].tolist()
 
+                header = self.df_head.iloc[0, :].tolist()
+                for i in range(1, len(header), 3):
+                        self.bodyparts[header[i]] = i
+
         def setup(self):
                 setupNE.setupNE(self.doc, self.savedFrames)
+                self.frameTimes = self.doc["frameTimes"].Timestamps()
+
+
+        def smooth(self):
+                self.frameTimes = self.doc["frameTimes"].Timestamps()
+                df_temp = pd.DataFrame(data={"frameTimes": self.frameTimes})
+                df_temp.to_csv(r"C:\Users\jp464\Desktop\frametimes.csv")
+                for b in self.bodyparts:
+                        fig, ax = plt.subplots(2)
+                        temp = self.df.iloc[:, self.bodyparts.get(b)].tolist()
+                        likelihood = self.df.iloc[:, self.bodyparts.get(b)+2].tolist()
+                        diff = [(temp[i+1] - temp[i]) for i in range(len(temp)-1)]
+                        diff_abs = [abs(i) for i in diff]
+                        (n, bin, patches) = ax[0].hist(diff_abs, bins=10)
+                        threshold = [i for i in n if i > 10000]
+                        index = np.where(n == threshold[-1])[0][0]
+                        cutoff = bin[index+1]
+                        # cutoff = np.percentile(diff_abs, 99.7)
+
+                        median_marker = statistics.median(temp)
+                        norm_marker = [i-median_marker for i in temp]
+                        median_vel = statistics.median(diff)
+                        norm_vel=[i-median_vel for i in diff]
+                        ax[1].plot(self.frameTimes, norm_marker)
+                        ax[1].plot(self.frameTimes[0:-1], norm_vel)
+                        ax[1].axhline(y=cutoff, linestyle='dashed', color="green")
+                        ax[1].axhline(y=cutoff*-1, linestyle='dashed', color="green")
+                        ax[1].set_title(b)
+
+                        series = self.df.iloc[:, self.bodyparts.get(b)]
+
+                        check = False
+                        cnt = 0
+
+                        likelihood_time = []
+                        for i in range(len(likelihood)):
+                                if likelihood[i] < .9:  
+                                        likelihood_time.append(self.frameTimes[i])
+                                        series[i] = np.nan
+
+                        for i in range(len(diff)):
+                                if self.frameTimes[i+1] - self.frameTimes[i] > 0.02:
+                                        check = False
+                                        continue
+                                if abs(diff[i]) > cutoff:
+                                        for j in range(i-2, i+3):
+                                                series[j] = np.nan
+                                        # if check == True:
+                                        #         check = False
+                                        # else:
+                                        #         check = True
+                                
+                                # elif check == True:
+                                #         series[i+1] = np.nan
+                                #         cnt += 1
+
+                                #         if (likelihood[i+1] > 0.9):
+                                #                 check = False
+                                                
+                        x = series.interpolate(method='polynomial', order=3)
+                        median_marker_fixed = statistics.median(x)
+                        norm_marker_fixed=[i-median_marker_fixed for i in x]
+                        ax[1].plot(self.frameTimes, norm_marker_fixed, color="purple")
+                        ax[1].scatter(x = likelihood_time, y = [100 for i in likelihood_time], color = "red")
+                        plt.show()
 
         def pix2mm(self):
                 if self.ratio == None:
@@ -88,21 +160,14 @@ class post_dlc():
                 return ret
 
         def feature_calc(self):
-                bodyparts = self.df_head.iloc[0, :].tolist()
-                ref = {}
-                for i in range(1, len(bodyparts), 3):
-                        ref[bodyparts[i]] = i
-                print(ref)
 
-                eye = ref.get("eye")
-                nose = ref.get("nose")
-                mouth = ref.get("mouth")
-                hand = ref.get("hand")
-                nonreachhand = ref.get("nonreachhand")
-                spout = ref.get("spout")
-                corner = ref.get("corner")
-
-                bodyparts = ['eye', 'nose', 'mouth', 'hand', 'nonreachhand', 'spout', 'corner']
+                eye = self.bodyparts.get("eye")
+                nose = self.bodyparts.get("nose")
+                mouth = self.bodyparts.get("mouth")
+                hand = self.bodyparts.get("hand")
+                nonreachhand = self.bodyparts.get("nonreachhand")
+                spout = self.bodyparts.get("spout")
+                corner = self.bodyparts.get("corner")
 
                 hand2spout_dist = self.dist_calc(hand, spout)
                 nose2spout_dist = self.dist_calc(nose, spout)
@@ -122,10 +187,10 @@ class post_dlc():
                         "nose2spout_vel": nose2spout_vel, "hand2nose_vel": hand2nose_vel,  "hand2mouth_vel": hand2mouth_vel,
                         "hand2hand_vel": hand2hand_vel, "hand_vel": hand_vel}
                 
-                for b in bodyparts:
-                        print(b, len(self.df.iloc[:, ref.get(b)].tolist()))
-                        d_cont[b + "X"] = self.df.iloc[:, ref.get(b)].tolist()
-                        d_cont[b + "Y"] = self.df.iloc[:, ref.get(b)].tolist()
+                for b in self.bodyparts:
+                        print(b, len(self.df.iloc[:, self.bodyparts.get(b)].tolist()))
+                        d_cont[b + "X"] = self.df.iloc[:, self.bodyparts.get(b)].tolist()
+                        d_cont[b + "Y"] = self.df.iloc[:, self.bodyparts.get(b)+1].tolist()
 
                 self.df_cont = pd.DataFrame(data=d_cont)
                 frameTimes = self.doc["frameTimes"].Timestamps()
@@ -156,11 +221,12 @@ class post_dlc():
         
         def post_dlc(self):
                 self.upload_file()
-                self.setup()
-                self.pix2mm()
-                self.feature_calc()
-                self.export_bsoid_file()
-                self.export_neuroexplorer()
+                # self.setup()
+                self.smooth()
+                # self.pix2mm()
+                # self.feature_calc()
+                # self.export_bsoid_file()
+                # self.export_neuroexplorer()
 
 
 if __name__ == "__main__":
