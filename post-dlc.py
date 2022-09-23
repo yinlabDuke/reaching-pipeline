@@ -5,6 +5,8 @@ import statistics
 import pandas as pd
 import nex
 import matplotlib.pyplot as plt
+from scipy.signal import argrelextrema
+import numpy as np
 import sys
 sys.path.append('C:\\ProgramData\\Nex Technologies\\NeuroExplorer 5 x64')
 
@@ -32,7 +34,9 @@ class post_dlc():
                 self.filename = None
                 self.savedFrames = None
                 self.dlc_file = dlc_file
+                self.reachPeakTimes = None
 
+# Upload dlc, NE, and video files. 
         def upload_file(self, doc=None, dlc_file=None, video_file=None):
 
                 if self.dlc_file == None:
@@ -58,6 +62,10 @@ class post_dlc():
                 self.savedFrames = pd.read_csv(video_file[0:-4] + "_savedframes.csv")["savedFrames"].tolist()
 
         def setup(self):
+                markerName = "digin1"
+                timestamps = np.array(self.doc[markerName].Timestamps())
+                values = np.array(self.doc[markerName].Markers())
+                print(values[0])
                 setupNE.setupNE(self.doc, self.savedFrames)
 
         def pix2mm(self):
@@ -92,7 +100,6 @@ class post_dlc():
                 ref = {}
                 for i in range(1, len(bodyparts), 3):
                         ref[bodyparts[i]] = i
-                print(ref)
 
                 eye = ref.get("eye")
                 nose = ref.get("nose")
@@ -117,6 +124,8 @@ class post_dlc():
                 hand2hand_vel = self.vel_calc(hand2hand_dist)
                 hand_vel = self.vel_calc2(hand)
 
+
+
                 d_cont = {"hand2spout_dist": hand2spout_dist, "nose2spout_dist": nose2spout_dist, "hand2nose_dist": hand2nose_dist, 
                         "hand2mouth_dist": hand2mouth_dist, "hand2hand_dist": hand2hand_dist, "hand2spout_vel": hand2spout_vel,
                         "nose2spout_vel": nose2spout_vel, "hand2nose_vel": hand2nose_vel,  "hand2mouth_vel": hand2mouth_vel,
@@ -128,14 +137,15 @@ class post_dlc():
                         d_cont[b + "Y"] = self.df.iloc[:, ref.get(b)].tolist()
 
                 self.df_cont = pd.DataFrame(data=d_cont)
-                frameTimes = self.doc["frameTimes"].Timestamps()
-                frameTimes = frameTimes[0: len(self.df_cont)]
-                self.df_cont["frameTimes"] = frameTimes
 
-                reachPeak_timestamps = []
-                self.d_events = {"reachPeak_timestamps": reachPeak_timestamps}
-                x = self.df.iloc[:, 0].tolist()
-                y = hand2spout_dist
+                self.frameTimes = self.doc["frameTimes"].Timestamps().tolist()
+                self.frameTimes = self.frameTimes[0: len(self.df_cont)]
+                self.df_cont["frameTimes"] = self.frameTimes
+
+                hand2spout_dist_np = np.array(hand2spout_dist)
+                reachPeakTimes_index = argrelextrema(hand2spout_dist_np, np.less, order=10)[0]
+                self.reachPeakTimes = [self.frameTimes[i] for i in reachPeakTimes_index]
+
         
         def export_bsoid_file(self):
                 i1 = self.filename.index("videos") 
@@ -151,6 +161,9 @@ class post_dlc():
                         self.doc[col].SetContVarTimestampsAndValues(self.df_cont["frameTimes"].tolist(), self.df_cont[col].tolist())
 
                 self.doc["frameTimes"].SetTimestamps(self.df_cont["frameTimes"].tolist())
+                self.doc["reachPeakTimes"] = nex.NewEvent(self.doc, 0)
+                self.doc["reachPeakTimes"].SetTimestamps(self.reachPeakTimes)
+
                 nex.SaveDocument(self.doc)
                 nex.CloseDocument(self.doc)
         
