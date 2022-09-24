@@ -31,10 +31,11 @@ def click_event(event, x, y, flags, params):
     if event == cv2.EVENT_RBUTTONDOWN:
         cv2.circle(click_event.img, (x,y), radius=3, color=(255, 0, 0), thickness=-1)
         cv2.imshow('image', click_event.img)
-        coords["origin"] = [x,y]
+        coords["origin"] = [x, y]
  
 def get_pixel(img):
-    click_event.img = img
+    img_copy = img.copy()
+    click_event.img = img_copy
     cv2.imshow('image', click_event.img)
     cv2.setMouseCallback('image', click_event)
     cv2.waitKey(0)
