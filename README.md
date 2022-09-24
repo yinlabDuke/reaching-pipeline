@@ -62,12 +62,11 @@ Tips for DLC:
 ### Post-DLC 
 This is where the pixels produced by DLC are converted to mm, and various features are calculated to be imported into NeuroExplorer. 
 
-**IMPORTANT**: Remember to split the markers of every NeuroExplorer file and save as .nex5 file before running post-dlc.py! 
+**IMPORTANT**: Ensure that you have the NeuroExplorer settings file ready. This file renames the labels.
 
 ```
 (DEEPLABCUT) C:/Users/username/reaching-pipeline> python post-dlc.py
 ```
-Note: You can only run post-dlc one file at a time. Working on processing multiple files concurrently. 
 
 ### B-SOiD 
 Follow the instructions [here](https://bsoid.org)
