@@ -52,7 +52,7 @@ def setupNE(doc, savedFrames):
     nex.Rename(doc, doc["digin101024"],"frameTimes")
     nex.Rename(doc, doc["digin100004"], "beamBreakTimes")
     nex.Rename(doc, doc["digin100256"], "reward")
-    nex.Rename(doc, doc["digin108192"], "trigger")
+    # nex.Rename(doc, doc["digin108192"], "trigger")
 
 # ==========================================================================================================
 # CLASSIFY LASER VS NOLASER BEAMBREAKS
