@@ -22,14 +22,18 @@ def search_for_directory(titles="Please select directory"):
   
 def click_event(event, x, y, flags, params):
     if event == cv2.EVENT_LBUTTONDOWN:
-        if len(coords) >= 3: coords.clear()
+        try:
+            if len(coords["ref"]) >= 2:
+                coords["ref"] = []
+        except:
+            coords["ref"] = []
+
         cv2.circle(click_event.img, (x,y), radius=3, color=(0, 0, 255), thickness=-1)
         cv2.imshow('image', click_event.img)
-        coords[x] = [x, y]
+        coords["ref"].append([x, y])
 
 
     if event == cv2.EVENT_RBUTTONDOWN:
-        if len(coords) >= 3: coords.clear()
         cv2.circle(click_event.img, (x,y), radius=3, color=(255, 0, 0), thickness=-1)
         cv2.imshow('image', click_event.img)
         coords["origin"] = [x, y]
@@ -43,11 +47,11 @@ def get_pixel(img):
     cv2.destroyAllWindows()
 
     ref_pixels = []
+    print(coords)
     for key in coords:
-        if (key == "origin"):
-            origin = coords[key]
-        else:
-            ref_pixels.append(coords[key])
+        origin = coords["origin"]
+        for r in coords["ref"]:
+            ref_pixels.append(r)
 
     return origin, ref_pixels
 
