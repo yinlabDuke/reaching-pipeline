@@ -27,3 +27,7 @@ if __name__ == '__main__':
 
     for f in bsoid_files:
         post_bsoid(f)
+
+# Yin Lab
+# Stanley Park
+# Last updated Sep 25 2022

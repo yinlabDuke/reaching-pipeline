@@ -35,6 +35,7 @@ class post_dlc():
                 self.filename = None
                 self.savedFrames = None
                 self.dlc_file = dlc_file
+                self.ne_file = None
                 self.bodyparts = {}
                 self.reachPeakTimes = None
                 self.setting_file = setting
@@ -49,14 +50,26 @@ class post_dlc():
                         self.dlc_file = helper.search_for_file_path(titles="Upload the DLC file.", filetypes=[('dlc', '*.csv')])[0]
 
                 if doc == None:
-                        ne_file = self.dlc_file
+                        self.ne_file = self.dlc_file
                         i = self.dlc_file.index('_modified') - len(self.dlc_file) 
-                        ne_file = (ne_file[0:i] + '.nev').replace('videos', 'neuroexplorer')
-                        self.doc = nex.OpenDocument(ne_file)
+                        self.ne_file = (self.ne_file[0:i] + '.nev').replace('videos', 'neuroexplorer')
+                        
+                        try:
+                                self.doc = nex.OpenDocument(self.ne_file)
+                        except:
+                                print(self.ne_file)
+                                print("NE document doesn't exist. Check to make sure the file is in the correct location. Processing rest of the videos.")
+                                return
 
                 if video_file == None:
-                        video_file =  (ne_file[0:-4] + '.mp4').replace('neuroexplorer', 'videos')
-                self.img, self.fps, self.framecount = helper.getVideo(video_file)
+                        video_file =  (self.ne_file[0:-4] + '.mp4').replace('neuroexplorer', 'videos')
+                
+                try:
+                        self.img, self.fps, self.framecount = helper.getVideo(video_file)
+                except:
+                        print(video_file)
+                        print("Video file does not exist. Ensure the file is in the correct location. Processing rest of the videos.")
+                        return
 
                 self.filename = video_file
 
@@ -84,7 +97,7 @@ class post_dlc():
                         self.doc[l2] = nex.NewEvent(self.doc, 0)
                         self.doc[l2].SetTimestamps(ts.tolist())
                 
-                nex.SaveDocumentAs(self.doc, ne_file[0:-4] + ".nex5")
+                nex.SaveDocumentAs(self.doc, self.ne_file[0:-4] + ".nex5")
 
 # ==================================================================
 # SETUP NEUROEXPLORER
@@ -92,7 +105,7 @@ class post_dlc():
 # ==================================================================
         def setup(self):
                 self.savedFrames = pd.read_csv(self.filename[0:-4] + "_savedframes.csv")["savedFrames"].tolist()
-                setupNE.setupNE(self.doc, self.savedFrames, self.setting_file)
+                setupNE.setupNE(self.doc, self.savedFrames, self.setting_file, self.ne_file)
                 nex.SaveDocument(self.doc)
                 self.frameTimes = self.doc["frameTimes"].Timestamps()[0: len(self.df)]
 
@@ -225,12 +238,13 @@ class post_dlc():
         # Comment to your liking to skip steps 
         def post_dlc(self):
                 self.upload_file()
-                self.setup()
-                self.smooth()
-                self.pix2mm()
-                self.feature_calc()
-                self.export_bsoid_file()
-                self.export_neuroexplorer()
+                if (self.doc != None) and (self.fps != None):
+                        self.setup()
+                        self.smooth()
+                        self.pix2mm()
+                        self.feature_calc()
+                        self.export_bsoid_file()
+                        self.export_neuroexplorer()
 
 
 if __name__ == "__main__":
@@ -244,7 +258,7 @@ if __name__ == "__main__":
         origin = None
         for f in dlc_files:
                 if (cnt != 0):
-                        print(str(int(cnt/tot * 100)) + "% completed")
+                        print(str(int(cnt/tot * 100)) + "%")
                         post = post_dlc(dlc_file=f, ratio=ratio, origin=origin, setting = setting_file)
                         post.post_dlc()
                         cnt+=1
@@ -258,6 +272,6 @@ if __name__ == "__main__":
 
 # Yin lab
 # Stanley Park
-# Last updated: 9/23/22
+# Last updated: 9/25/22
 
 

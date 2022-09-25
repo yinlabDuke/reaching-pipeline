@@ -67,3 +67,6 @@ if (createVideo):
     videos = [f for f in videos]
     dlc.create_labeled_video(config_path, videos, save_frames=False, filtered=True)
 
+# Yin lab
+# Stanley Park
+# Last updated Sep 25 2022

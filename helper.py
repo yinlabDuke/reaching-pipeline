@@ -21,14 +21,15 @@ def search_for_directory(titles="Please select directory"):
     return tempdir
   
 def click_event(event, x, y, flags, params):
-
     if event == cv2.EVENT_LBUTTONDOWN:
+        if len(coords) >= 3: coords.clear()
         cv2.circle(click_event.img, (x,y), radius=3, color=(0, 0, 255), thickness=-1)
         cv2.imshow('image', click_event.img)
         coords[x] = [x, y]
 
 
     if event == cv2.EVENT_RBUTTONDOWN:
+        if len(coords) >= 3: coords.clear()
         cv2.circle(click_event.img, (x,y), radius=3, color=(255, 0, 0), thickness=-1)
         cv2.imshow('image', click_event.img)
         coords["origin"] = [x, y]

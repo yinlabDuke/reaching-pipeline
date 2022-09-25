@@ -8,3 +8,7 @@ if __name__ == "__main__":
 
     for v in vids:
         vp.videoProcessing(v)
+
+# Yin lab
+# Stanley Park
+# Last updated Sep 25 2022

@@ -18,7 +18,7 @@ def findChannel(name):
     except:
         return None
 
-def setupNE(doc, savedFrames, setting): 
+def setupNE(doc, savedFrames, setting, ne_file): 
 # ==========================================================================================================
 # REASSIGN DUPLICATE SIGNALS
 # ==========================================================================================================
@@ -60,7 +60,8 @@ def setupNE(doc, savedFrames, setting):
         try:
             nex.Rename(doc, doc[digin], label)
         except:
-            print(digin + ", which corresponds to " + label + " does not exist in the neuroexplorer file. Skipping for now.")
+            print(ne_file)
+            print(digin + ", which corresponds to " + label[0:-1] + " does not exist in the neuroexplorer file. Skipping for now.")
             continue
     
     try:
@@ -69,6 +70,7 @@ def setupNE(doc, savedFrames, setting):
         doc["beamBreakTimesNoLaser"] = nex.NotSync(doc["beamBreakTimesFiltered"], doc["laserStimOnTimes"], -0.1, 0.1)
         doc["beamBreakTimesLaser"] = nex.Sync(doc["beamBreakTimesFiltered"], doc["laserStimOnTimes"], -0.1, 0.1)
     except: 
+        print(ne_file)
         print("No beambreak times to clean up. Skipping for now.")
 
 # ==========================================================================================================
