@@ -41,4 +41,4 @@ def data_interpolation(var, bodyparts, df, frameTimes):
 
         series = series.interpolate(method='polynomial', order=3)
         df.iloc[:, b_index] = series
-        fig.clear()
+        plt.clf()

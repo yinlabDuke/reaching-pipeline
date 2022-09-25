@@ -194,6 +194,7 @@ class post_dlc():
                 plt.plot(self.frameTimes, hand2spout_dist_np)
                 plt.scatter(self.reachPeakTimes, [1 for i in self.reachPeakTimes], color="red")
                 # plt.show()
+                plt.clf()
 
 # ==================================================================
 # EXPORT BSOID CSV
@@ -237,13 +238,16 @@ if __name__ == "__main__":
         dlc_files = [f for f in dlc_files]
         setting_file = helper.search_for_file_path(titles="Please upload the settings for NE", filetypes=[('yaml', '*.yaml')])[0]
 
+        tot = len(dlc_files)
         cnt = 0
         ratio = None
         origin = None
         for f in dlc_files:
                 if (cnt != 0):
+                        print(str(int(cnt/tot)) + "% completed")
                         post = post_dlc(dlc_file=f, ratio=ratio, origin=origin, setting = setting_file)
                         post.post_dlc()
+                        cnt+=1
                 else:
                         post = post_dlc(dlc_file=f, ratio=ratio, origin=origin, setting=setting_file)
                         post.post_dlc()
