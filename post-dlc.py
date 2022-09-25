@@ -45,8 +45,16 @@ class post_dlc():
                 if doc == None:
                         ne_file = self.dlc_file.replace('videos', 'neuroexplorer')
                         i = self.dlc_file.index('_modified') - len(self.dlc_file) 
-                        ne_file = ne_file[0:i] + '.nex5'
+                        ne_file = ne_file[0:i] + '.nev'
                         self.doc = nex.OpenDocument(ne_file)
+
+                markerName = "digin1"
+                timestamps = np.array(self.doc[markerName].Timestamps())
+                values = np.array(self.doc[markerName].Markers())
+                print(values[0])
+                ne_file = ne_file[0:-4] + 'nex5'
+                nex.SaveDocumentAs(self.doc, ne_file)
+                self.doc = nex.OpenDocument(ne_file)
 
                 if video_file == None:
                         video_file =  ne_file.replace('neuroexplorer', 'videos')
@@ -62,10 +70,6 @@ class post_dlc():
                 self.savedFrames = pd.read_csv(video_file[0:-4] + "_savedframes.csv")["savedFrames"].tolist()
 
         def setup(self):
-                markerName = "digin1"
-                timestamps = np.array(self.doc[markerName].Timestamps())
-                values = np.array(self.doc[markerName].Markers())
-                print(values[0])
                 setupNE.setupNE(self.doc, self.savedFrames)
 
         def pix2mm(self):
