@@ -121,7 +121,7 @@ class post_dlc():
 # ==================================================================
         def pix2mm(self):
                 if self.ratio == None:
-                        print("Left click two pixels for calibration. Right click for reference point.\n")
+                        print("Left click two pixels for calibration. Right click for reference point. If you make a mistake, make at least three clicks then press enter.\n")
 
                         check = 0
                         while (check == 0):
