@@ -1,0 +1,9 @@
+Label:
+digin102048,laserPulseTimes
+digin101024,frameTimes
+digin108192,beamBreakTimes
+digin100008,reward
+digin100016,laserStimOnTimes
+Trigger:
+frameTimesPost = [v for i, v in enumerate(doc["frameTimes"].Timestamps()) if i in savedFrames]
+doc["frameTimes"].SetTimestamps(frameTimesPost)

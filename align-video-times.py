@@ -23,8 +23,6 @@ def alignVideo(doc, vidPath):
         except:
             continue
 
-    print(laserTimesFrame)
-
     
 
     input_vid = cv2.VideoCapture(vidPath)

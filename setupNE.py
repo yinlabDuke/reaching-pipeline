@@ -18,7 +18,7 @@ def findChannel(name):
     except:
         return None
 
-def setupNE(doc, savedFrames): 
+def setupNE(doc, savedFrames, setting): 
 # ==========================================================================================================
 # REASSIGN DUPLICATE SIGNALS
 # ==========================================================================================================
@@ -46,39 +46,42 @@ def setupNE(doc, savedFrames):
 # ==========================================================================================================
 # RENAME EVENTS
 # ==========================================================================================================
-    # nex.Rename(doc, doc["ainp1"],"touchSignal")
-    # nex.Rename(doc, doc["ainp2"],"beamBreak")
-    nex.Rename(doc, doc["digin100016"],"laserPulseTimes")
-    nex.Rename(doc, doc["digin101024"],"frameTimes")
-    nex.Rename(doc, doc["digin100004"], "beamBreakTimes")
-    nex.Rename(doc, doc["digin100256"], "reward")
-    nex.Rename(doc, doc["digin108192"], "trigger")
-
-# ==========================================================================================================
-# CLASSIFY LASER VS NOLASER BEAMBREAKS
-# ==========================================================================================================
-    doc["beamBreakTimesFiltered"] = nex.ISIFilter(doc["beamBreakTimes"], 0.25)
-    doc["laserStimOnTimes"] = nex.ISIFilter(doc["laserPulseTimes"], 0.25)
-
-    doc["beamBreakTimesNoLaser"] = nex.NotSync(doc["beamBreakTimesFiltered"], doc["laserStimOnTimes"], -0.1, 0.1)
-    doc["beamBreakTimesLaser"] = nex.Sync(doc["beamBreakTimesFiltered"], doc["laserStimOnTimes"], -0.1, 0.1)
+    
+    setting_file = open(setting, 'r')
+    lines = setting_file.readlines()
+    for line in lines:
+        if line == "Label:\n": 
+            continue
+        if line == "Trigger:\n": 
+            break
+        label_pair = line.split(",")
+        digin = label_pair[0]
+        label = label_pair[1]
+        try:
+            nex.Rename(doc, doc[digin], label)
+        except:
+            print(digin + ", which corresponds to " + label + " does not exist in the neuroexplorer file. Skipping for now.")
+            continue
+    
+    try:
+        doc["beamBreakTimesFiltered"] = nex.ISIFilter(doc["beamBreakTimes"], 0.25)
+        doc["laserStimOnTimes"] = nex.ISIFilter(doc["laserPulseTimes"], 0.25)
+        doc["beamBreakTimesNoLaser"] = nex.NotSync(doc["beamBreakTimesFiltered"], doc["laserStimOnTimes"], -0.1, 0.1)
+        doc["beamBreakTimesLaser"] = nex.Sync(doc["beamBreakTimesFiltered"], doc["laserStimOnTimes"], -0.1, 0.1)
+    except: 
+        print("No beambreak times to clean up. Skipping for now.")
 
 # ==========================================================================================================
 # ADJUST FRAME STARTTIME
 # ==========================================================================================================
-    nex.Rename(doc, doc["frameTimes"], "frameTimesOrig")
-    doc["frameBurstOnsets"] = nex.ISIFilter(doc["frameTimesOrig"], 0.1)
-    doc["saveStartTime"] = nex.SelectTrials(doc["frameBurstOnsets"], "2")
-    doc["frameTimes"] = nex.Sync(doc["frameTimesOrig"], doc["saveStartTime"], -0.01, 10000)
-
-    frameTimes = doc["frameTimes"].Timestamps()
-    if frameTimes[1] > frameTimes[0] + 0.015:
-        frameTimes.pop(0)
-
-    frameTimesPost = [v for i, v in enumerate(doc["frameTimes"].Timestamps()) if i in savedFrames]
-    doc["frameTimesPrior"] = nex.NewEvent(doc, 0)
-    doc["frameTimesPrior"].SetTimestamps(frameTimes)
-    doc["frameTimes"].SetTimestamps(frameTimesPost)
+    lines = setting_file.readlines()
+    for line in lines:
+        while (line != "Trigger:"): continue
+        try:
+            exec(line)
+        except:
+            print("No trigger system detected. Skipping for now.")
+    
     nex.SaveDocument(doc)
 
 if __name__ == '__main__':

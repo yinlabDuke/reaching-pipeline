@@ -25,7 +25,8 @@ else:
     config_path = helper.search_for_file_path(titles="Upload the config file\n")[0]
 
 if (addVideos):
-    videos = helper.search_for_file_path(titles="Upload all the videos you want to analyze.\n")
+    print("Upload all the videos you want to add.")
+    videos = helper.search_for_file_path(titles="Upload all the videos you want to add.\n")
     videos = [f for f in videos]
     print(videos)
     dlc.add_new_videos(config_path, videos, copy_videos=False)
@@ -42,32 +43,27 @@ if (training):
         dlc.evaluate_network(config_path,Shuffles=[1], plotting=True)
 
 if (analyzeVideo):
-    videos = helper.search_for_file_path(titles="Upload all the videos to analyze\n", filetypes=[('video', 'mp4')])
+    videos = helper.search_for_file_path(titles="Upload all the videos to analyze\n", filetypes=[('video', '*.mp4')])
     videos = [f for f in videos]
-    dlc_dest = helper.search_for_directory(titles="Find the directory to find the dlc files in.")
-    dlc.analyze_videos(config_path, videos, videotype='.mp4', destfolder=dlc_dest, save_as_csv=True)
-    dlc.filterpredictions(config_path, videos, videotype='mp4', destfolder=dlc_dest, save_as_csv=True)
+    dlc.analyze_videos(config_path, videos, videotype='.mp4', save_as_csv=True)
+    dlc.filterpredictions(config_path, videos, videotype='mp4', save_as_csv=True)
     
 
 if (refine):
     if (analyzeVideo == 0):
         videos = helper.search_for_file_path(titles="Upload all the videos to analyze\n", filetypes=[('video', '*.mp4')])
 
-    dlc.extract_outlier_frames(config_path, videos, outlieralgorithm='uncertain', comparisonbodyparts=['hand', 'nonreachinghand', "mouth", "spout", "corner"], automatic=True)
+
+    dlc.extract_outlier_frames(config_path, videos, outlieralgorithm='uncertain', comparisonbodyparts=['hand', 'nonreachinghand', "mouth"], automatic=True)
     
-    refine = 1
-    while (refine):
-        dlc.refine_labels(config_path)
-        refine = int(input("Would you like to refine more lables? 1 for yes, 0 for no\n"))
     if (int(input("Proceed with retraining dataset? Enter 1 for yes, 0 for no.\n"))):
         dlc.merge_datasets(config_path)
         dlc.create_training_dataset(config_path, augmenter_type='imgaug')
         dlc.train_network(config_path, maxiters=250000)
 
 if (createVideo):
-    videos = helper.search_for_file_path(titles="Upload all the videos to analyze\n")
+    print("Upload all the videos you want to create labelled videos for.")
+    videos = helper.search_for_file_path(titles="Upload all the videos to analyze\n", filetypes=[('video', '*.mp4')])
     videos = [f for f in videos]
     dlc.create_labeled_video(config_path, videos, save_frames=False, filtered=True)
 
-# if (int(input("Would you like to create labeled videos? Enter 1 for yes, 0 for no.\n"))):
-#     dlc.create_labeled_video(config_path, [helper.search_for_directory()], videotype='.mp4')
