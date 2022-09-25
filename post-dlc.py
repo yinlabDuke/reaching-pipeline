@@ -244,7 +244,7 @@ if __name__ == "__main__":
         origin = None
         for f in dlc_files:
                 if (cnt != 0):
-                        print(str(int(cnt/tot)) + "% completed")
+                        print(str(int(cnt/tot * 100)) + "% completed")
                         post = post_dlc(dlc_file=f, ratio=ratio, origin=origin, setting = setting_file)
                         post.post_dlc()
                         cnt+=1
