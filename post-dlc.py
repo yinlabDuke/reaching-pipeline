@@ -62,11 +62,15 @@ class post_dlc():
                                 return
 
                 if video_file == None:
-                        video_file =  (self.ne_file[0:-4] + '.mp4').replace('neuroexplorer', 'videos')
+                        for ext in ['.mp4', '.avi']:
+                                video_file = (self.ne_file[0:-4] + ext).replace('neuroexplorer', 'videos')
+                                self.img, self.fps, self.framecount = helper.getVideo(video_file)
+                                if (self.fps < 1 ):
+                                        continue
+                                else:
+                                        break
                 
-                try:
-                        self.img, self.fps, self.framecount = helper.getVideo(video_file)
-                except:
+                if self.fps < 1:
                         print(video_file)
                         print("Video file does not exist. Ensure the file is in the correct location. Processing rest of the videos.")
                         return
@@ -238,7 +242,7 @@ class post_dlc():
         # Comment to your liking to skip steps 
         def post_dlc(self):
                 self.upload_file()
-                if (self.doc != None) and (self.fps != None):
+                if (self.doc != None) and (self.fps > 1):
                         self.setup()
                         self.smooth()
                         self.pix2mm()
@@ -257,7 +261,7 @@ if __name__ == "__main__":
         ratio = None
         origin = None
         for f in dlc_files:
-                if (cnt != 0):
+                if (ratio != None):
                         print(str(int(cnt/tot * 100)) + "%")
                         post = post_dlc(dlc_file=f, ratio=ratio, origin=origin, setting = setting_file)
                         post.post_dlc()
