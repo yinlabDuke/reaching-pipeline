@@ -76,14 +76,38 @@ def setupNE(doc, savedFrames, setting, ne_file):
 # ==========================================================================================================
 # ADJUST FRAME STARTTIME
 # ==========================================================================================================
-    lines = setting_file.readlines()
+    trigger = 1
+    check = False
     for line in lines:
-        while (line != "Trigger:"): continue
-        try:
-            exec(line)
-        except:
-            print("No trigger system detected. Skipping for now.")
+        if check == True:
+            trigger = int(line[0:1])
+            break
+        if line == "Trigger:\n": check = True
+
+    if (trigger):
+# POST-TRIGGER 
+        nex.Rename(doc, doc["frameTimes"], "frameTimesOrig")
+        doc["frameBurstOnsets"] = nex.NewEvent(doc, 0)
+        doc["frameBurstOnsets"] = nex.ISIFilter(doc["frameTimesOrig"], 0.1)
+        doc["saveStartTime"] = nex.NewEvent(doc, 0)
+        doc["saveStartTime"] = nex.SelectTrials(doc["frameBurstOnsets"], "2")
+        doc["frameTimes"] = nex.NewEvent(doc, 0)
+        doc["frameTimes"] = nex.Sync(doc["frameTimesOrig"], doc["saveStartTime"], -0.01, 10000)
+
+        frameTimes = doc["frameTimes"].Timestamps()
+        if frameTimes[1] > frameTimes[0] + 0.015: 
+            frameTimes.pop(0)
+        frameTimesPost = [v for i, v in enumerate(doc["frameTimes"].Timestamps()) if i in savedFrames]
+        doc["frameTimesPrior"] = nex.NewEvent(doc, 0)
+        doc["frameTimesPrior"].SetTimestamps(frameTimes)
+        doc["frameTimes"].SetTimestamps(frameTimesPost)
+
+    else:
+# PRE-TRIGGER
+        frameTimesPost = [v for i, v in enumerate(doc["frameTimes"].Timestamps()) if i in savedFrames]
+        doc["frameTimes"].SetTimestamps(frameTimesPost)
     
+
     nex.SaveDocument(doc)
 
 if __name__ == '__main__':
