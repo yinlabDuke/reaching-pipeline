@@ -87,11 +87,8 @@ def setupNE(doc, savedFrames, setting, ne_file):
     if (trigger):
 # POST-TRIGGER 
         nex.Rename(doc, doc["frameTimes"], "frameTimesOrig")
-        doc["frameBurstOnsets"] = nex.NewEvent(doc, 0)
         doc["frameBurstOnsets"] = nex.ISIFilter(doc["frameTimesOrig"], 0.1)
-        doc["saveStartTime"] = nex.NewEvent(doc, 0)
         doc["saveStartTime"] = nex.SelectTrials(doc["frameBurstOnsets"], "2")
-        doc["frameTimes"] = nex.NewEvent(doc, 0)
         doc["frameTimes"] = nex.Sync(doc["frameTimesOrig"], doc["saveStartTime"], -0.01, 10000)
 
         frameTimes = doc["frameTimes"].Timestamps()
@@ -105,6 +102,8 @@ def setupNE(doc, savedFrames, setting, ne_file):
     else:
 # PRE-TRIGGER
         frameTimesPost = [v for i, v in enumerate(doc["frameTimes"].Timestamps()) if i in savedFrames]
+        doc["frameTimesPrior"] = nex.NewEvent(doc, 0)
+        doc["frameTimesPrior"].SetTimestamps(frameTimes)
         doc["frameTimes"].SetTimestamps(frameTimesPost)
     
 
