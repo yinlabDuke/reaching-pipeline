@@ -58,7 +58,7 @@ class post_dlc():
                                 self.doc = nex.OpenDocument(self.ne_file)
                         except:
                                 print(self.ne_file)
-                                print("NE document doesn't exist. Check to make sure the file is in the correct location. Processing rest of the videos.")
+                                print("Do you have NeuroExplorer open? If yes, NE document doesn't exist. Check to make sure the file is in the correct location. Processing rest of the videos.")
                                 return
 
                 if video_file == None:

@@ -103,7 +103,7 @@ def setupNE(doc, savedFrames, setting, ne_file):
 # PRE-TRIGGER
         frameTimesPost = [v for i, v in enumerate(doc["frameTimes"].Timestamps()) if i in savedFrames]
         doc["frameTimesPrior"] = nex.NewEvent(doc, 0)
-        doc["frameTimesPrior"].SetTimestamps(frameTimes)
+        doc["frameTimesPrior"].SetTimestamps(frameTimes)    
         doc["frameTimes"].SetTimestamps(frameTimesPost)
     
 
