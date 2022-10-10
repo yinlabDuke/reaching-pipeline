@@ -10,7 +10,7 @@ To install the pipeline, type:
 Then activate the DLC environment and install nex:
 ```
 (base) C:/Users/username> activate DEEPLABCUT
-(DEEPLABCUT) C:/Users/username> pip install nex 
+(DEEPLABCUT) C:/Users/username> python.exe -m pip install -U nex
 ```  
 
 **IMPORTANT**:
@@ -21,6 +21,8 @@ File structure must be exactly as follows:
   - bsoid
 
 In "neuroexplorer", add all the .nev files. In "videos", add all the videos. Eventually, the dlc files will also be added to the "videos" directory. Additionally, the file names of corresponding neuroexplorer and video files must be identical, except the extension name. 
+
+Lastly, please check "Enable running python scripts in external editor" under the "Script" tab in NeuroExplorer. When you use the program, ensure NeuroExplorer is open at all times.  
 ## Usage
 
 Activate the DLC environment:
