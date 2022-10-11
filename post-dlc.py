@@ -184,11 +184,13 @@ class post_dlc():
                 hand2mouth_vel = self.vel_calc(hand2mouth_dist)
                 hand2hand_vel = self.vel_calc(hand2hand_dist)
                 hand_vel = self.vel_calc2(hand)
+                handX_vel = self.vel_calc(self.df.iloc[:, hand])
+                noseX_vel = self.vel_calc(self.df.iloc[:, nose])
 
                 d_cont = {"hand2spout_dist": hand2spout_dist, "nose2spout_dist": nose2spout_dist, "hand2nose_dist": hand2nose_dist, 
                         "hand2mouth_dist": hand2mouth_dist, "hand2hand_dist": hand2hand_dist, "hand2spout_vel": hand2spout_vel,
                         "nose2spout_vel": nose2spout_vel, "hand2nose_vel": hand2nose_vel,  "hand2mouth_vel": hand2mouth_vel,
-                        "hand2hand_vel": hand2hand_vel, "hand_vel": hand_vel}
+                        "hand2hand_vel": hand2hand_vel, "hand_vel": hand_vel, "handX_vel": handX_vel, "noseX_vel": noseX_vel}
 
                 # Uncomment if you don't want any feature calculations
                 # d_cont = {}
