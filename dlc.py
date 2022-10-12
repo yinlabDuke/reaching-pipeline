@@ -56,6 +56,9 @@ while (check != 0):
         videos = helper.search_for_file_path(titles="Upload all the videos to analyze\n", filetypes=[('video', '*.mp4')])
         videos = [f for f in videos]
         dlc.create_labeled_video(config_path, videos, save_frames=False, filtered=True)
+    
+    if check not in [0, 1, 2, 3, 4, 5, 6]:
+        print("Please enter a number among the options provided.")
         
 
 # Yin lab
