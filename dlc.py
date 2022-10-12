@@ -14,7 +14,7 @@ else:
     config_path = helper.search_for_file_path(titles="Upload the config file\n", filetypes=[('config', '*.yaml')])[0]
 
 check = 1
-while (check == 0):
+while (check != 0):
     print("What would you like to do next?\n0: Quit\n1: Add videos\n2: Label videos\n3: Train model (new or next iteration)\n4: Analyze by predicting labels for new videos\n5: Extract outlier frames and refine\n6: Create labelled video")
     check = int(input("Enter your option!"))
 
