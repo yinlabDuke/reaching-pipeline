@@ -43,10 +43,9 @@ while (check != 0):
         dlc.filterpredictions(config_path, videos, videotype='mp4', save_as_csv=True)
     
     if check == 5:
-        
-        if (int(input("Would you like to extract outlier frames? 1 for yes, 0 for no."))):
+        if (int(input("Do you want to extract outlier frames? 1 for yes, 0 for no"))):
             videos = helper.search_for_file_path(titles="Upload all the videos to analyze\n", filetypes=[('video', '*.mp4')])
-            dlc.extract_outlier_frames(config_path, videos, outlieralgorithm='uncertain', comparisonbodyparts=['hand', 'spout', 'corner'], automatic=True)
+            dlc.extract_outlier_frames(config_path, videos, outlieralgorithm='uncertain', comparisonbodyparts=['hand', 'nonreachinghand', "mouth"], automatic=True)
         dlc.refine_labels(config_path)
         if (int(input("Proceed with retraining dataset? Enter 1 for yes, 0 for no.\n"))):
             dlc.merge_datasets(config_path)
