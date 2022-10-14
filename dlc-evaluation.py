@@ -2,10 +2,9 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import helper
 
-dlc_file = helper.search_for_file_path(titles="Upload DLC file", filetypes=[("dlc", "*filtered.csv")])[0]
 
-df = pd.read_csv(dlc_file, skiprows=[1, 2])
-df_head = pd.read_csv(dlc_file, skiprows=lambda x: x not in [0, 1, 2])
+
+
 
 def likelihood_cutoff(df, df_head):
         cnt = 0
@@ -24,4 +23,9 @@ def likelihood_cutoff(df, df_head):
         plt.show()
 
 if __name__ == "__main__":
-    likelihood_cutoff(df, df_head)
+        dlc_file = helper.search_for_file_path(titles="Upload DLC file", filetypes=[("dlc", "*filtered.csv")])
+        for f in dlc_file:
+                print(f)
+                df = pd.read_csv(f, skiprows=[1, 2])
+                df_head = pd.read_csv(f, skiprows=lambda x: x not in [0, 1, 2])
+                likelihood_cutoff(df, df_head)

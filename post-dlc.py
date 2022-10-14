@@ -228,8 +228,9 @@ class post_dlc():
         def export_neuroexplorer(self):
                 for col in self.df_cont:
                         if col == "frameTimes": continue
-                        self.doc[col] = nex.NewContVarWithFloats(self.doc, self.fps) 
+                        self.doc[col] = nex.NewContVarWithFloats(self.doc, self.fps)
                         self.doc[col].SetContVarTimestampsAndValues(self.df_cont["frameTimes"].tolist(), self.df_cont[col].tolist())
+
 
 # ==================================================================
 # EXPORT FEATURES TO NEUROEXPLORER

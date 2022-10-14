@@ -7,7 +7,7 @@ if (createConfig):
     experimenter = input("What is your name?\n")
     videos = helper.search_for_file_path(titles="Upload all the videos you want to analyze.\n")
     videos = [f for f in videos]
-    config_path = dlc.create_new_project(projectName, experimenter, videos, copy_videos=False) # symbolic link doesn't work
+    config_path = dlc.create_new_project(projectName, experimenter, videos, copy_videos=False, working_directory=r"D:\DLC Models") # symbolic link doesn't work
     input("Press enter after you have configured the yaml file\n")
 else:
     print("Provide the file path for the config file\n")
@@ -43,13 +43,15 @@ while (check != 0):
         dlc.filterpredictions(config_path, videos, videotype='mp4', save_as_csv=True)
     
     if check == 5:
-        videos = helper.search_for_file_path(titles="Upload all the videos to analyze\n", filetypes=[('video', '*.mp4')])
-        dlc.extract_outlier_frames(config_path, videos, outlieralgorithm='uncertain', comparisonbodyparts=['hand', 'nonreachinghand', "mouth"], automatic=True)
-
+        
+        if (int(input("Would you like to extract outlier frames? 1 for yes, 0 for no."))):
+            videos = helper.search_for_file_path(titles="Upload all the videos to analyze\n", filetypes=[('video', '*.mp4')])
+            dlc.extract_outlier_frames(config_path, videos, outlieralgorithm='uncertain', comparisonbodyparts=['hand', 'spout', 'corner'], automatic=True)
+        dlc.refine_labels(config_path)
         if (int(input("Proceed with retraining dataset? Enter 1 for yes, 0 for no.\n"))):
             dlc.merge_datasets(config_path)
             dlc.create_training_dataset(config_path, augmenter_type='imgaug')
-            dlc.train_network(config_path, maxiters=250000)
+            dlc.train_network(config_path, maxiters=50000)
     
     if check == 6:
         print("Upload all the videos you want to create labelled videos for.")
