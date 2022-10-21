@@ -36,7 +36,6 @@ for t in Timestamps:
     cnt = 0
     print("New set of frames.\n")
     while(True):
-
         ret, frame = input_vid.read()
         if not ret:
             break
@@ -44,7 +43,10 @@ for t in Timestamps:
         print(cnt)
         cv2.imshow("video", frame)
 
-        k = cv2.waitKey(0)
+        k = -1
+        while k not in [108, 100, 97, 27]:
+            k = cv2.waitKey(0)
+            
         if k == 108:
             lickTimestamps.append((t + cnt) / 100 + startTime)
             cnt += 1
