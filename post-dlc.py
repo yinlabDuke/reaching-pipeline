@@ -238,6 +238,8 @@ class post_dlc():
                 self.doc["frameTimes"].SetTimestamps(self.df_cont["frameTimes"].tolist())
                 self.doc["reachPeakTimes"] = nex.NewEvent(self.doc, 0)
                 self.doc["reachPeakTimes"].SetTimestamps(self.reachPeakTimes)
+                self.doc['reachesDuringStim'] = nex.Sync(self.doc['reachPeakTimes'], self.doc['laserStimOnTimes'], -0.7, 0.7)
+                self.doc['reachesNoStim'] = nex.NotSync(self.doc['reachPeakTimes'], self.doc['laserStimOnTimes'], -0.7, 0.7)
 
                 nex.SaveDocument(self.doc)
                 nex.CloseDocument(self.doc)
