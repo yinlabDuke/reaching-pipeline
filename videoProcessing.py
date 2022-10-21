@@ -61,7 +61,7 @@ def videoProcessing(filepath, crop, first, cutoff=None):
                         cv2.imshow("cut out", frame)
                         cv2.waitKey(1)
                 cv2.destroyAllWindows()
-                check = int(input("Are you happy with the processing of the video? 1 for yes, 0 for no.\n"))
+            check = int(input("Are you happy with the processing of the video? 1 for yes, 0 for no.\n"))
 
     input_vid = cv2.VideoCapture(filepath)
     cnt = 0

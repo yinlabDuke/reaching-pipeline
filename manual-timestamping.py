@@ -6,6 +6,7 @@ import nex
 import pandas as pd 
 import random
 
+print("Press D to move forward one frame. Press A to move back one frame. Press L to timestamp a lick. Press ESC to move onto the next session.\n")
 ne_file = helper.search_for_file_path(titles="Upload the NeuroExplorer file you want to analyze.\n")[0]
 video_file = video_file = (ne_file[0:-5] + ".mp4").replace('neuroexplorer', 'videos')
 
@@ -46,7 +47,7 @@ for t in Timestamps:
         k = -1
         while k not in [108, 100, 97, 27]:
             k = cv2.waitKey(0)
-            
+
         if k == 108:
             lickTimestamps.append((t + cnt) / 100 + startTime)
             cnt += 1
