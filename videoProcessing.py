@@ -4,10 +4,12 @@ import matplotlib.pyplot as plt
 import numpy as np
 import nex 
 import pandas as pd 
+import random
 
-def videoProcessing(filepath):
+def videoProcessing(filepath, crop, first, cutoff=None):
 
     input_vid = cv2.VideoCapture(filepath)
+    input_vid.set(1, 1)
 
     w_frame, h_frame = int(input_vid.get(cv2.CAP_PROP_FRAME_WIDTH)), int(input_vid.get(cv2.CAP_PROP_FRAME_HEIGHT))
     fps, frames = input_vid.get(cv2.CAP_PROP_FPS), input_vid.get(cv2.CAP_PROP_FRAME_COUNT)
@@ -15,58 +17,51 @@ def videoProcessing(filepath):
     fourcc = cv2.VideoWriter_fourcc(*'XVID')
     output_vid = cv2.VideoWriter(filepath[0:-4] + '_modified.mp4', fourcc, 100, (w_frame, h_frame))
 
-    pixels = []
+    if (first):
+        pixels = []
 
-    cnt = 0
-    while True:
-        ret, frame = input_vid.read()
+        cnt = 0
+        preview = 0
+        while True:
+            ret, frame = input_vid.read()
 
-        if not ret:
-            break
+            if not ret:
+                break
 
-        crop_img = frame[100:350, 0:350]
-        sum = np.sum(crop_img)
-        pixels.append(sum)
+            crop_img = frame[crop[0][1]:crop[1][1], crop[0][0]:crop[1][0]]
+            sum = np.sum(crop_img)
+            pixels.append(sum)
 
-    fig, axes = plt.subplots(3, figsize=(18, 8))
 
-    axes[0].plot(list(range(len(pixels))), pixels)
-    axes[0].set_xlabel("frame number")
-    axes[0].set_ylabel("average pixel value")
-    (n1, bin1, patches1) = axes[1].hist(pixels, bins=80)
-    axes[1].set_xlabel("average pixel value")
-    axes[1].set_ylabel("number of frames")
+        input_vid = cv2.VideoCapture(filepath)
+        check = 0
+        while (check == 0 and first):
+            fig, axes = plt.subplots(1, figsize=(18, 8))
+            (n1, bin1, patches1) = axes.hist(pixels, bins=80)
+            axes.set_xlabel("average pixel value")
+            axes.set_ylabel("number of frames")
+            plt.show()
+            cutoff = float(input("Enter the cutoff pixel value you want. Be wary of the exponent. Any frames with greater pixel value will be removed\n"))
+            print(str(round(len([i for i in pixels if i > cutoff]) / len(pixels) * 100, 2)) +"% of frames will be removed.")
 
-    prop_frames = [round(i / frames * 100, 2) for i in n1]
-    (n2, bin2, patches2) = axes[2].hist(prop_frames, bins=15)
-    total = np.sum(n2)
-    prop_prop = [round(i / total * 100, 2) for i in n2]
-    max_pp = max(prop_prop)
-    index_pp = prop_prop.index(max_pp)
-    for i, v in enumerate(prop_prop):
-        if (v < 15 and i > index_pp):
-            threshold = bin2[i]
-            break
+            time = int(input(("Would you like a preview of what your video will look like? If yes, enter the number of ms you would like to preview for. Otherwise, enter 0.\n")))
+            if (time != 0):
+                for i in range(time):
+                    ret, frame = input_vid.read()
 
-    diff_list = []
-
-    check = 0
-    for i in range(len(n1) - 1):
-        diff = n1[i+1] - n1[i]
-
-        if check == 1 and prop_frames[i+1] < threshold and diff < 50:
-            cutoff = bin1[i+1]
-            break
-
-        if prop_frames[i+1] > threshold:
-            check = 1
-
-        diff_list.append(diff)
-
-    # plt.show()
-    print(cutoff)       
-  
-        
+                    if not ret:
+                        break
+                
+                    crop_img = frame[crop[0][1]:crop[1][1], crop[0][0]:crop[1][0]]
+                    sum = np.sum(crop_img)
+                    if sum < cutoff:
+                        cv2.imshow("kept", frame)
+                        cv2.waitKey(1)
+                    else:
+                        cv2.imshow("cut out", frame)
+                        cv2.waitKey(1)
+                cv2.destroyAllWindows()
+                check = int(input("Are you happy with the processing of the video? 1 for yes, 0 for no.\n"))
 
     input_vid = cv2.VideoCapture(filepath)
     cnt = 0
@@ -77,10 +72,7 @@ def videoProcessing(filepath):
         if not ret:
             break
 
-        crop_img = frame[100:350, 0:350]
-        sum = np.sum(crop_img)
-        pixels.append(sum)
-
+        crop_img = frame[crop[0][1]:crop[1][1], crop[0][0]:crop[1][0]]
         sum = np.sum(crop_img)
         if sum < cutoff:
             output_vid.write(frame)
@@ -95,10 +87,40 @@ def videoProcessing(filepath):
 
     df = pd.DataFrame(data={"savedFrames": savedFrames})
     df.to_csv(filepath[0:-4] + "_savedframes.csv")
+    return cutoff 
     
 
 if __name__ == '__main__':
-    directory = helper.search_for_directory(titles="Select the directory where the videos are located.")
-    filepath = helper.search_for_file_path(dir=directory)
+    filepath = helper.search_for_file_path(titles="Select the videos you want to process", filetypes=[("vid", "*.mp4")])
+    check = 0
+    crop = None
+    cutoff = None
     for vid in filepath:
-        videoProcessing(vid)
+        if crop ==  None or cutoff == None:
+            while (check == 0):
+                img, fps, framecount = helper.getVideo(vid)
+                img, fps, framecount = helper.getVideo(vid, random.randint(1, framecount))
+                cv2.imshow("Are you happy with this frame?", img)
+                check = int(input("Are you happy with the image to select region of cropping? 1 for yes, 0 for no.\n"))
+            
+            check = 0
+            while (check == 0):
+                print("Left click the left upper and right lower vertices of the rectangle you want to crop.\n")
+                crop = helper.get_pixel2(img)
+
+                input_vid = cv2.VideoCapture(vid)    
+                for i in range(500):
+                    ret, frame = input_vid.read()
+
+                    if not ret:
+                        break
+
+                    crop_img = frame[crop[0][1]:crop[1][1], crop[0][0]:crop[1][0]]
+                    cv2.imshow("original", frame)
+                    cv2.imshow("cropped", crop_img)
+                    cv2.waitKey(1)
+                cv2.destroyAllWindows()
+                check = int(input("Are you happy with the cropping of the video? 1 for yes, 0 for no.\n"))
+            cutoff = videoProcessing(vid, crop, first=True)
+        else:
+            videoProcessing(vid, crop, False, cutoff)

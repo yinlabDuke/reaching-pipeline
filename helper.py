@@ -55,10 +55,26 @@ def get_pixel(img):
 
     return origin, ref_pixels
 
-def getVideo(video_file):
+def get_pixel2(img):
+    img_copy = img.copy()
+    click_event.img = img_copy
+    cv2.imshow('image', click_event.img)
+    cv2.setMouseCallback('image', click_event)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
+
+    ref_pixels = []
+    print(coords)
+    for r in coords["ref"]:
+        ref_pixels.append(r)
+
+    return ref_pixels   
+
+def getVideo(video_file, frameNum=1):
     video = cv2.VideoCapture(video_file)
     fps = video.get(cv2.CAP_PROP_FPS)
     framecount = int(video.get(cv2.CAP_PROP_FRAME_COUNT))
+    video.set(1, frameNum)
     success, image = video.read()
     return image, fps, framecount
 
