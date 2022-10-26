@@ -6,7 +6,8 @@ def post_bsoid(f):
     bsoid_file = f
     i1 = bsoid_file.index('bsoid')  - len(bsoid_file)
     i2 = bsoid_file.index("pose") + 10
-    ne_file = bsoid_file[0:i1] + 'neuroexplorer/' + bsoid_file[i2:-4] + '.nex5'
+    i3 = bsoid_file.index("Delay") - len(bsoid_file) + 5
+    ne_file = bsoid_file[0:i1] + 'neuroexplorer/' + bsoid_file[i2:i3] + '.nex5'
     print(ne_file)
 
     df = pd.read_csv(bsoid_file, skiprows=[1, 2])

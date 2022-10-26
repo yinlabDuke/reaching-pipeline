@@ -6,6 +6,14 @@ import nex
 import pandas as pd 
 import random
 
+# Adjust starting point 
+buffer = 40 
+
+def findFrame(frameTimes, time):
+    for i, v in enumerate(frameTimes):
+        if v > time - 0.005 and v < time + 0.005:
+            return i
+
 print("Press D to move forward one frame. Press A to move back one frame. Press L to timestamp a lick. Press ESC to move onto the next session.\n")
 ne_file = helper.search_for_file_path(titles="Upload the NeuroExplorer file you want to analyze.\n")[0]
 video_file = video_file = (ne_file[0:-5] + ".mp4").replace('neuroexplorer', 'videos')
@@ -16,7 +24,7 @@ except:
         print(ne_file)
         print("Do you have NeuroExplorer open? If yes, NE document doesn't exist. Check to make sure the file is in the correct location.")
 
-startTime = doc["saveStartTime"].Timestamps()[0]
+frameTimesPrior = doc["frameTimesPrior"].Timestamps()
 reachesDuringStim = doc["reachesDuringStim"].Timestamps()
 reachesNoStim = doc["reachesNoStim"].Timestamps()
 reachesNoStim2 = []
@@ -25,17 +33,19 @@ for i in NoStimTrials:
     reachesNoStim2.append(reachesNoStim[i])
 
 Timestamps = reachesDuringStim + reachesNoStim2
-Timestamps = [int(t) * 100 for t in Timestamps]
+Timestamps = [findFrame(frameTimesPrior, t) for t in Timestamps]
 Timestamps.sort()
 
 input_vid = cv2.VideoCapture(video_file)
 lickTimestamps = []
 
+track = 0
 for t in Timestamps:
-    t = t - 70
+    track += 1
+    print(str(track) + " out of " + str(len(Timestamps)) + " completed.\n")
+    t = t - buffer
     input_vid.set(1, t)
     cnt = 0
-    print("New set of frames.\n")
     while(True):
         ret, frame = input_vid.read()
         if not ret:
@@ -49,7 +59,7 @@ for t in Timestamps:
             k = cv2.waitKey(0)
 
         if k == 108:
-            lickTimestamps.append((t + cnt) / 100 + startTime)
+            lickTimestamps.append(frameTimesPrior[t+cnt])
             cnt += 1
             continue
 
@@ -68,6 +78,7 @@ for t in Timestamps:
         
     cv2.destroyAllWindows()
 
+lickTimestamps.sort()
 print(lickTimestamps)
 doc["lickTimes"] = nex.NewEvent(doc, 0)
 doc["lickTimes"].SetTimestamps(lickTimestamps)
