@@ -1,10 +1,14 @@
 import cv2 
-import helper 
+from supplementary import helper
 import matplotlib.pyplot as plt
 import numpy as np
 import nex 
 import pandas as pd 
 import random
+
+'''
+Processes video to filter for only relevant frames prior to running dlc 
+'''
 
 def videoProcessing(filepath, crop, first, cutoff=None):
 
@@ -66,7 +70,7 @@ def videoProcessing(filepath, crop, first, cutoff=None):
     input_vid = cv2.VideoCapture(filepath)
     cnt = 0
     savedFrames = []
-    while True:
+    for i in helper.progressbar(range(len(frames) + 100)):
         ret, frame = input_vid.read()
 
         if not ret:
@@ -91,7 +95,7 @@ def videoProcessing(filepath, crop, first, cutoff=None):
     
 
 if __name__ == '__main__':
-    filepath = helper.search_for_file_path(titles="Select the videos you want to process", filetypes=[("vid", "*.mp4")])
+    filepath = helper.search_for_file_path(titles="Select the videos you want to process", filetypes=[("vid", "*.mp4")], dir=r"D:/")
     check = 0
     crop = None
     cutoff = None

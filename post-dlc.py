@@ -1,5 +1,5 @@
-import helper
-import setupNE
+from supplementary import helper
+from supplementary import setupNE
 import math
 import statistics
 import pandas as pd
@@ -7,8 +7,9 @@ import nex
 import matplotlib.pyplot as plt
 from scipy.signal import find_peaks
 import numpy as np
-import data_interpolation
+from supplementary import data_interpolation
 import sys
+import os 
 sys.path.append('C:\\ProgramData\\Nex Technologies\\NeuroExplorer 5 x64')
 
 '''
@@ -221,9 +222,14 @@ class post_dlc():
         def export_bsoid_file(self):
                 i1 = self.filename.index("videos") 
                 i2 = i1 - len(self.filename)
-                bsoid_file = self.filename[0:i2] + 'bsoid/' + self.filename[i1+7:-4] + ".csv"
+                bsoid_dir = bsoid_file = self.filename[0:i2] + 'bsoid/raw'
+                bsoid_file = bsoid_dir + "/" + self.filename[i1+7:-4] + ".csv"
                 self.df_bsoid = pd.concat([self.df_head, self.df_bsoid])
-                self.df_bsoid.to_csv(bsoid_file)
+                try:
+                        os.mkdir(bsoid_dir)
+                        self.df_bsoid.to_csv(bsoid_file, index=False)
+                except:
+                        self.df_bsoid.to_csv(bsoid_file, index=False)
 
         def export_neuroexplorer(self):
                 for col in self.df_cont:
@@ -257,17 +263,17 @@ class post_dlc():
 
 
 if __name__ == "__main__":
-        dlc_files = helper.search_for_file_path(titles="Please select dlc files", filetypes=[('csv', '*filtered.csv')])
+        dlc_files = helper.search_for_file_path(titles="Please select dlc files", filetypes=[('csv', '*filtered.csv')], dir=r"D:/")
         dlc_files = [f for f in dlc_files]
-        setting_file = helper.search_for_file_path(titles="Please upload the settings for NE", filetypes=[('yaml', '*.yaml')])[0]
+        setting_file = helper.search_for_file_path(titles="Please upload the settings for NE", filetypes=[('yaml', '*.yaml')], dir=r"D:/")[0]
 
         tot = len(dlc_files)
         cnt = 0
         ratio = None
         origin = None
-        for f in dlc_files:
+        for i in helper.progressbar(range(len(dlc_files))):
+                f = dlc_files[i]
                 if (ratio != None):
-                        print(str(int(cnt/tot * 100)) + "%")
                         post = post_dlc(dlc_file=f, ratio=ratio, origin=origin, setting = setting_file)
                         post.post_dlc()
                         cnt+=1
@@ -277,7 +283,6 @@ if __name__ == "__main__":
                         ratio = post.ratio
                         origin = post.origin
                         cnt+=1
-        print("Phew! It's finally done!")
 
 # Yin lab
 # Stanley Park

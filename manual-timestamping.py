@@ -1,10 +1,14 @@
 import cv2 
-import helper 
+from supplementary import helper
 import matplotlib.pyplot as plt
 import numpy as np
 import nex 
 import pandas as pd 
 import random
+
+'''
+Manually identify timestamps and record on NeuroExplorer
+'''
 
 # Adjust starting point 
 buffer = 40 
@@ -24,7 +28,7 @@ except:
         print(ne_file)
         print("Do you have NeuroExplorer open? If yes, NE document doesn't exist. Check to make sure the file is in the correct location.")
 
-frameTimesPrior = doc["frameTimesPrior"].Timestamps()
+frameTimes = doc["frameTimesPrior"].Timestamps()
 reachesDuringStim = doc["reachesDuringStim"].Timestamps()
 reachesNoStim = doc["reachesNoStim"].Timestamps()
 reachesNoStim2 = []
@@ -33,7 +37,7 @@ for i in NoStimTrials:
     reachesNoStim2.append(reachesNoStim[i])
 
 Timestamps = reachesDuringStim + reachesNoStim2
-Timestamps = [findFrame(frameTimesPrior, t) for t in Timestamps]
+Timestamps = [findFrame(frameTimes, t) for t in Timestamps]
 Timestamps.sort()
 
 input_vid = cv2.VideoCapture(video_file)
@@ -59,7 +63,7 @@ for t in Timestamps:
             k = cv2.waitKey(0)
 
         if k == 108:
-            lickTimestamps.append(frameTimesPrior[t+cnt])
+            lickTimestamps.append(frameTimes[t+cnt])
             cnt += 1
             continue
 

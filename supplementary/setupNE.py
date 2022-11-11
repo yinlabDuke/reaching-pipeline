@@ -1,7 +1,10 @@
 import sys
 sys.path.append('C:\\ProgramData\\Nex Technologies\\NeuroExplorer 5 x64')
 import nex
-import helper
+from supplementary import helper
+'''
+Sets up NeuroExplorer before importing continuous variables
+'''
 
 def findIndex(binary, length):
     return [length - i for i, char in enumerate(binary) if char == '1']

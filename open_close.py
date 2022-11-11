@@ -1,5 +1,5 @@
 import nex
-import helper
+from supplementary import helper
 
 ne = helper.search_for_file_path(titles="Upload all NeuroExplorer files", filetypes=[("nex5", "*.nex5")])
 

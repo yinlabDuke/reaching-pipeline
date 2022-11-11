@@ -1,7 +1,7 @@
 import sys
 sys.path.append('C:\\ProgramData\\Nex Technologies\\NeuroExplorer 5 x64')
 import nex
-import helper
+from supplementary import helper
 
 def inRange(l, a, b):
     for i in l:

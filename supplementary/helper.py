@@ -4,6 +4,7 @@ import os
 import cv2 
 import numpy as np
 import matplotlib.pyplot as plt 
+import sys
 
 coords = {}
 
@@ -101,6 +102,35 @@ def likelihood_cutoff(df, df_head, per):
         fig.suptitle("The cutoff is " + str(round(cutoff, 2)))
         plt.show()
         return cutoff
+
+def edit_video(vid_file, output_name):
+    input = cv2.VideoCapture(vid_file)
+    w_frame, h_frame = int(input.get(cv2.CAP_PROP_FRAME_WIDTH)), int(input.get(cv2.CAP_PROP_FRAME_HEIGHT))
+    fourcc = cv2.VideoWriter_fourcc(*'XVID')
+    output = cv2.VideoWriter(vid_file[0:-4] + output_name, fourcc, 100, (w_frame, h_frame))
+
+    return input, output
+
+def progressbar(it, prefix="", size=60, out=sys.stdout): # Python3.3+
+    count = len(it)
+    def show(j):
+        x = int(size*j/count)
+        print("{}[{}{}] {}/{}".format(prefix, "#"*x, "."*(size-x), j, count), 
+                end='\r', file=out, flush=True)
+    show(0)
+    for i, item in enumerate(it):
+        yield item
+        show(i+1)
+    print("\n", flush=True, file=out)
+
+def findFrame(frameTimes, time):
+    for i, v in enumerate(frameTimes):
+        if v > time - 0.005 and v < time + 0.005:
+            return i
+
+
+
+
 
 if __name__ == "__main__":
     print(getVideo(search_for_file_path(titles="Upload the video corresponding to the DLC")[0]))

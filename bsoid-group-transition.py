@@ -14,21 +14,24 @@
 
 import pandas as pd 
 import os
-import helper
+from supplementary import helper
 import nex 
 
 def group_transition(file, dir, group):
     # Read file and extract list of labels for all frames
     df = pd.read_csv(file, skiprows=[1, 2])
     all_groups = df["B-SOiD labels"].tolist()
-    set_groups = set(all_groups)
-    print("The groups are: ")
-    print(set_groups)
 
-    ne_file = file.replace("bsoid/processed_files", "neuroexplorer")
+    i = file.index("labels_pose") + 17
+    j = file.index('Delay') + 5
+    ne_filename = file[i:j] + ".nex5"
+    ne_dir = file.replace("bsoid/processed-files", "neuroexplorer")
+    ne_dir = ne_dir[0: ne_dir.index("neuroexplorer") + 14]
+    ne_file = ne_dir + ne_filename
     try:
         doc = nex.OpenDocument(ne_file)
     except:
+        print(ne_file)
         print("Could not find file. Please manually upload.")
         doc = nex.OpenDocument(helper.search_for_file_path()[0])
     frameTimes = doc["frameTimes"].Timestamps()
@@ -80,15 +83,19 @@ def group_transition(file, dir, group):
 
 
 if __name__ == "__main__":
-    files = helper.search_for_file_path()
+    files = helper.search_for_file_path(titles="Upload all the bsoid files you want to find transition times for.", filetypes=[("csv", "*.csv")], dir=r"D:/")
     
     try:
         group = int(input("Enter the preceding group that you want the transition times for.\n"))
     except:
         print("Please enter an integer.\n")
-    for f in files:
-        dir = f[0: f.index("bsoid")+5] + "/transitions/" + f[f.index("bsoid")+6: -4]
-        os.mkdir(dir)
+    for i in helper.progressbar(range(len(files))):
+        f = files[i]
+        dir = f[0: f.index("bsoid")+5] + "/transitions/" + f[f.index("bsoid")+21: -4]
+        try:
+            os.mkdir(dir)
+        except:
+            print("Directory already exists. Using existing directory.")
         group_transition(f, dir, group)
 
 

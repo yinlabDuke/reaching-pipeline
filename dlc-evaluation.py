@@ -1,11 +1,10 @@
 import matplotlib.pyplot as plt 
 import pandas as pd
-import helper
+from supplementary import helper
 
-
-
-
-
+'''
+Check likelihood values of all markers for dlc file
+'''
 def likelihood_cutoff(df, df_head):
         cnt = 0
         vert = 0
@@ -23,7 +22,7 @@ def likelihood_cutoff(df, df_head):
         plt.show()
 
 if __name__ == "__main__":
-        dlc_file = helper.search_for_file_path(titles="Upload DLC file", filetypes=[("dlc", "*filtered.csv")])
+        dlc_file = helper.search_for_file_path(titles="Upload DLC file", filetypes=[("dlc", "*filtered.csv")], dir=r"D:/videos")
         for f in dlc_file:
                 print(f)
                 df = pd.read_csv(f, skiprows=[1, 2])
