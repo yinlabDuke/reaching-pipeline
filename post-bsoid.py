@@ -20,14 +20,18 @@ def post_bsoid(f):
     labels = bc.process(labels)
     labels = bc.process(labels)
     df2 = pd.DataFrame({"B-SOiD labels": labels})
-    print(df2)
     df2.to_csv(f[0:-4] + "_corrected.csv")
 
     doc = nex.OpenDocument(ne_file)
     frameTimes = doc["frameTimes"].Timestamps()
 
     doc['bsoid_labels'] = nex.NewContVarWithFloats(doc, 100) 
-    doc['bsoid_labels'].SetContVarTimestampsAndValues(frameTimes, labels)
+    try:
+        doc['bsoid_labels'].SetContVarTimestampsAndValues(frameTimes, labels)
+    except:
+        print("Length of bsoid labels and frametimes do not match.")
+        print(len(labels), len(frameTimes))
+        
     nex.SaveDocument(doc)   
     nex.CloseDocument(doc)
 

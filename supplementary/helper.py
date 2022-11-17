@@ -128,9 +128,25 @@ def findFrame(frameTimes, time):
         if v > time - 0.005 and v < time + 0.005:
             return i
 
+def trimFileName(name, former=0, latter=0, ext=0):
+    if former != 0:
+        former = name.index(former)
+        
+    if latter != 0:
+        length = len(latter)
+        latter = name.index(latter)
+        latter += length
+    else:
+        latter = len(name)
+    
+    if ext == 0:
+        ext = name[name.index("."): len(name)]
 
+    elif ext == ".nex5":
+        dir = "D:/neuroexplorer/"
 
+    return dir + name[former: latter] + ext
 
 
 if __name__ == "__main__":
-    print(getVideo(search_for_file_path(titles="Upload the video corresponding to the DLC")[0]))
+    trimFileName("Nov-04-2022_v2labels_pose_100HzD151_m71_100722_30Hz_30pulse_bilat_atNoseBB_0msDelay_modifiedDLC_resnet50_reaching-task2Nov3shuffle1_250000_filtered_corrected.csv", former="D151", latter="Delay")

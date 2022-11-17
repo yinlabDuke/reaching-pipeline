@@ -20,7 +20,8 @@ def videoTagging(filepath, bsoid_groups, color):
 
 
     tot = len(bsoid_groups)
-    for i, v in enumerate(bsoid_groups):
+    for i in helper.progressbar(range(len(bsoid_groups))):
+        v = bsoid_groups[i]
         ret, frame = input_vid.read()
 
         if not ret:
@@ -29,15 +30,12 @@ def videoTagging(filepath, bsoid_groups, color):
         frame = cv2.putText(frame, "Group " + str(v), (500, 465), cv2.FONT_HERSHEY_PLAIN, 1, color[v], 2)
         output_vid.write(frame)
 
-        progress = i / tot * 100
-        print(int(progress), '%')
-
     input_vid.release()
     output_vid.release()
     
 
 if __name__ == '__main__':
-    filepath = helper.search_for_file_path(titles="Select the videos you want to process", filetypes=[("vid", "*.mp4")])
+    filepath = helper.search_for_file_path(titles="Select the videos you want to process", filetypes=[("vid", "*.mp4")], dir="D:/")
     check = 0
     crop = None
     cutoff = None

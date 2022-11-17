@@ -10,6 +10,8 @@ import random
 Manually identify timestamps and record on NeuroExplorer
 '''
 
+name = "reachStart"
+
 # Adjust starting point 
 buffer = 40 
 
@@ -19,7 +21,7 @@ def findFrame(frameTimes, time):
             return i
 
 print("Press D to move forward one frame. Press A to move back one frame. Press L to timestamp a lick. Press ESC to move onto the next session.\n")
-ne_file = helper.search_for_file_path(titles="Upload the NeuroExplorer file you want to analyze.\n")[0]
+ne_file = helper.search_for_file_path(titles="Upload the NeuroExplorer file you want to analyze.\n", filetypes=[("nex", "*.nex5")], dir="D:/")[0]
 video_file = video_file = (ne_file[0:-5] + ".mp4").replace('neuroexplorer', 'videos')
 
 try:
@@ -84,8 +86,8 @@ for t in Timestamps:
 
 lickTimestamps.sort()
 print(lickTimestamps)
-doc["lickTimes"] = nex.NewEvent(doc, 0)
-doc["lickTimes"].SetTimestamps(lickTimestamps)
+doc[name] = nex.NewEvent(doc, 0)
+doc[name].SetTimestamps(lickTimestamps)
 nex.SaveDocument(doc)
 nex.CloseDocument(doc)
 print(video_file)
