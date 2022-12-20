@@ -9,17 +9,15 @@ Cleans up bsoid file and imports into NeuroExplorer
 
 def post_bsoid(f):
     bsoid_file = f
-    i1 = bsoid_file.index('bsoid')  - len(bsoid_file)
-    i2 = bsoid_file.index("pose") + 10
-    i3 = bsoid_file.index("Delay") - len(bsoid_file) + 5
-    # i3 = bsoid_file.index("0000") - len(bsoid_file) + 4
-    ne_file = bsoid_file[0:i1] + 'neuroexplorer/' + bsoid_file[i2:i3] + '.nex5'
+    ne_dir = helper.trimFileName(f, latter="processed-file").replace("bsoid/processed-file", "neuroexplorer/")
+    ne_file = helper.trimFileName(f, former="Hz", ext=".nex5")[2:]
+    ne_file = ne_dir + ne_file
 
     df = pd.read_csv(bsoid_file, skiprows=[1, 2])
     labels = df["B-SOiD labels"].tolist()
     labels = bc.process(labels)
     labels = bc.process(labels)
-    df2 = pd.DataFrame({"B-SOiD labels": labels})
+    df2 = pd.DataFrame({"B-SOiD labels": labels}) 
     df2.to_csv(f[0:-4] + "_corrected.csv")
 
     doc = nex.OpenDocument(ne_file)
@@ -28,6 +26,7 @@ def post_bsoid(f):
     doc['bsoid_labels'] = nex.NewContVarWithFloats(doc, 100) 
     try:
         doc['bsoid_labels'].SetContVarTimestampsAndValues(frameTimes, labels)
+        print(labels)
     except:
         print("Length of bsoid labels and frametimes do not match.")
         print(len(labels), len(frameTimes))

@@ -128,7 +128,8 @@ def findFrame(frameTimes, time):
         if v > time - 0.005 and v < time + 0.005:
             return i
 
-def trimFileName(name, former=0, latter=0, ext=0):
+# 
+def trimFileName(name, former=0, latter=0, ext=0, dir=0):
     if former != 0:
         former = name.index(former)
         
@@ -140,13 +141,37 @@ def trimFileName(name, former=0, latter=0, ext=0):
         latter = len(name)
     
     if ext == 0:
-        ext = name[name.index("."): len(name)]
-
-    elif ext == ".nex5":
-        dir = "D:/neuroexplorer/"
+        ext = ""
+    else:
+        name = name[0: name.index(".")]
+    
+    if dir == 0:
+        dir = ""
 
     return dir + name[former: latter] + ext
 
+def createVideo(filepath, filtered_frames):
+
+    input_vid = cv2.VideoCapture(filepath)
+    input_vid.set(1, 1)
+
+    w_frame, h_frame = int(input_vid.get(cv2.CAP_PROP_FRAME_WIDTH)), int(input_vid.get(cv2.CAP_PROP_FRAME_HEIGHT))
+    fps, frames = input_vid.get(cv2.CAP_PROP_FPS), input_vid.get(cv2.CAP_PROP_FRAME_COUNT)
+
+    fourcc = cv2.VideoWriter_fourcc(*'XVID')
+    output_vid = cv2.VideoWriter(filepath[0:-4] + '_bsoid.mp4', fourcc, 100, (w_frame, h_frame))
+
+    for i in progressbar(range(int(frames) + 100)):
+        ret, frame = input_vid.read()
+
+        if not ret:
+            break
+
+        if i in filtered_frames:
+            output_vid.write(frame)
+
+    input_vid.release()
+    output_vid.release()
 
 if __name__ == "__main__":
     trimFileName("Nov-04-2022_v2labels_pose_100HzD151_m71_100722_30Hz_30pulse_bilat_atNoseBB_0msDelay_modifiedDLC_resnet50_reaching-task2Nov3shuffle1_250000_filtered_corrected.csv", former="D151", latter="Delay")

@@ -17,86 +17,93 @@ import os
 from supplementary import helper
 import nex 
 
-def group_transition(file, dir, group):
-    # Read file and extract list of labels for all frames
-    df = pd.read_csv(file, skiprows=[1, 2])
-    all_groups = df["B-SOiD labels"].tolist()
-
-    i = file.index("labels_pose") + 17
-    j = file.index('Delay') + 5
-    ne_filename = file[i:j] + ".nex5"
-    ne_dir = file.replace("bsoid/processed-files", "neuroexplorer")
-    ne_dir = ne_dir[0: ne_dir.index("neuroexplorer") + 14]
-    ne_file = ne_dir + ne_filename
+def group_transition(file, dir, ne_feedback):
     try:
-        doc = nex.OpenDocument(ne_file)
+        doc = nex.OpenDocument(file)
     except:
-        print(ne_file)
-        print("Could not find file. Please manually upload.")
-        doc = nex.OpenDocument(helper.search_for_file_path()[0])
+        print(file)
+        print("Either NE is not open or the file does not exist. Manually upload.")
+        helper.search_for_file_path()
+
+    # Read file and extract list of labels for all frames
+    all_groups = [int(i) for i in doc["bsoid_labels"].ContinuousValues()]
+    unique_groups = set(all_groups)
     frameTimes = doc["frameTimes"].Timestamps()
 
-    initial = []
-    final = []
-    next = []
+    for g in unique_groups:
+        initial = []
+        final = []
+        next = []
 
-    # Identify all transition frames 
-    check = False               
-    for i in range(len(all_groups)):
-        cur = all_groups[i]
+        # Identify all transition frames 
+        check = False               
+        for i in range(len(all_groups)):
+            cur = all_groups[i]
 
-        if (not check):
-            if cur == group:
-                initial.append(i)
-                check = True
-            
-        else:
-            if cur != group:
-                final.append(i - 1)
-                next.append(all_groups[i])
-                check = False
-            
-            if i == len(all_groups) - 1:
-                final.append(i)
-                next.append(None)
+            if (not check):
+                if cur == g:
+                    initial.append(i)
+                    check = True
+                
+            else:
+                if cur != g:
+                    final.append(i - 1)
+                    next.append(all_groups[i])
+                    check = False
+                
+                if i == len(all_groups) - 1:
+                    final.append(i)
+                    next.append(None)
 
-    initial = [frameTimes[i] for i in initial]
-    final = [frameTimes[i] for i in final]
-    
-    # Create data frame of initial and final frames of label, and next label
-    d = {'initial': initial, 'final': final, 'next_group' : next}
-    df_transition = pd.DataFrame(data=d)
+        initial = [frameTimes[i] for i in initial]
+        final = [frameTimes[i] for i in final]
+        
+        # Create data frame of initial and final frames of label, and next label
+        d = {'initial': initial, 'final': final, 'next_group' : next}
+        df_transition = pd.DataFrame(data=d)
 
-    # Calculate frequencies of next labels 
-    freq = df_transition["next_group"].value_counts(normalize = True)
-    print(freq)
+        # Calculate frequencies of next labels 
+        freq = df_transition["next_group"].value_counts(normalize = True)
+        print(freq)
 
-    dir = dir + "/group" + str(group)
-    try:
-        os.mkdir(dir)
-    except:
-        print("The directory already exists.\n")
+        dir_temp = dir + "/group" + str(g)
+        try:
+            os.mkdir(dir_temp)
+        except:
+            pass
 
-    for g in set(d["next_group"]):
-        df_temp = df_transition[df_transition["next_group"] == g]
-        df_temp.to_csv(dir + "/group" + str(group) + "to" + str(g) + ".csv", index=False)
+        for g2 in set(d["next_group"]):
+            name = str(g) + "to" + str(g2)
+            df_temp = df_transition[df_transition["next_group"] == g2]
+            df_temp.to_csv(dir_temp + "/group" + name + ".csv", index=False)
+
+            if ne_feedback:
+                
+                doc[name] = nex.NewEvent(doc, 0)
+                doc[name].SetTimestamps(df_temp["final"].tolist())
+                nex.SaveDocument(doc)
+        
+    nex.CloseDocument(doc)
 
 
 if __name__ == "__main__":
-    files = helper.search_for_file_path(titles="Upload all the bsoid files you want to find transition times for.", filetypes=[("csv", "*.csv")], dir=r"D:/")
-    
+    files = helper.search_for_file_path(titles="Upload all the NE files you want to find transition times for.", filetypes=[("nex5", "*.nex5")], dir=r"D:/")
+    dir = helper.trimFileName(files[0], latter="neuroexplorer").replace("neuroexplorer", "bsoid/") + "group_transitions"
     try:
-        group = int(input("Enter the preceding group that you want the transition times for.\n"))
+        os.mkdir(dir)
     except:
-        print("Please enter an integer.\n")
+        pass
+    
     for i in helper.progressbar(range(len(files))):
         f = files[i]
-        dir = f[0: f.index("bsoid")+5] + "/transitions/" + f[f.index("bsoid")+21: -4]
+        dir2 = dir + helper.trimFileName(f, former="neuroexplorer")[13:-5] + "/"
+
         try:
-            os.mkdir(dir)
+            os.mkdir(dir2)
         except:
-            print("Directory already exists. Using existing directory.")
-        group_transition(f, dir, group)
+            pass
+
+        group_transition(f, dir2, ne_feedback=True)
 
 
 

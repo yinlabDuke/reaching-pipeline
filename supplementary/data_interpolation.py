@@ -39,6 +39,9 @@ def data_interpolation(var, bodyparts, df, frameTimes):
                             if 0< j < len(series):
                                 series[j] = np.nan
 
-        series = series.interpolate(method='polynomial', order=3)
+        try:
+                series = series.interpolate(method='polynomial', order=3)
+        except:
+                print("Interpolation failed for " + b + ". Will proceed with raw data.")
         df.iloc[:, b_index] = series
         plt.close("all")

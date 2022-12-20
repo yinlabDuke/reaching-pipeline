@@ -59,7 +59,7 @@ class post_dlc():
                                 self.doc = nex.OpenDocument(self.ne_file)
                         except:
                                 print(self.ne_file)
-                                print("Do you have NeuroExplorer open? If yes, NE document doesn't exist. Check to make sure the file is in the correct location. Processing rest of the videos.")
+                                print("NeuroExplorer must be open. If NE is open, the NE document doesn't exist. Check to make sure the file is in the correct location. Processing rest of the videos.")
                                 return
 
                 if video_file == None:
@@ -169,29 +169,29 @@ class post_dlc():
                 nose = self.bodyparts.get("nose")
                 mouth = self.bodyparts.get("mouth")
                 hand = self.bodyparts.get("hand")
-                nonreachhand = self.bodyparts.get("nonreachhand")
+                # nonreachhand = self.bodyparts.get("nonreachhand")
                 spout = self.bodyparts.get("spout")
-                corner = self.bodyparts.get("corner")
+                # corner = self.bodyparts.get("corner")
 
                 hand2spout_dist = self.dist_calc(hand, spout)
                 nose2spout_dist = self.dist_calc(nose, spout)
                 hand2nose_dist = self.dist_calc(hand, nose)
                 hand2mouth_dist = self.dist_calc(hand, mouth)
-                hand2hand_dist = self.dist_calc(hand, nonreachhand)
+                # hand2hand_dist = self.dist_calc(hand, nonreachhand)
 
                 hand2spout_vel = self.vel_calc(hand2spout_dist)
                 nose2spout_vel = self.vel_calc(nose2spout_dist)
                 hand2nose_vel = self.vel_calc(hand2nose_dist)
                 hand2mouth_vel = self.vel_calc(hand2mouth_dist)
-                hand2hand_vel = self.vel_calc(hand2hand_dist)
+                # hand2hand_vel = self.vel_calc(hand2hand_dist)
                 hand_vel = self.vel_calc2(hand)
                 handX_vel = self.vel_calc(self.df.iloc[:, hand])
                 noseX_vel = self.vel_calc(self.df.iloc[:, nose])
 
                 d_cont = {"hand2spout_dist": hand2spout_dist, "nose2spout_dist": nose2spout_dist, "hand2nose_dist": hand2nose_dist, 
-                        "hand2mouth_dist": hand2mouth_dist, "hand2hand_dist": hand2hand_dist, "hand2spout_vel": hand2spout_vel,
+                        "hand2mouth_dist": hand2mouth_dist, "hand2spout_vel": hand2spout_vel,
                         "nose2spout_vel": nose2spout_vel, "hand2nose_vel": hand2nose_vel,  "hand2mouth_vel": hand2mouth_vel,
-                        "hand2hand_vel": hand2hand_vel, "hand_vel": hand_vel, "handX_vel": handX_vel, "noseX_vel": noseX_vel}
+                        "hand_vel": hand_vel, "handX_vel": handX_vel, "noseX_vel": noseX_vel}
 
                 # Uncomment if you don't want any feature calculations
                 # d_cont = {}
@@ -222,14 +222,29 @@ class post_dlc():
         def export_bsoid_file(self):
                 i1 = self.filename.index("videos") 
                 i2 = i1 - len(self.filename)
-                bsoid_dir = bsoid_file = self.filename[0:i2] + 'bsoid/raw'
+                data_dir = bsoid_file = self.filename[0:i2] + 'bsoid/data'
+                raw_dir = bsoid_file = self.filename[0:i2] + 'bsoid/raw'
+                bsoid_dir = data_dir + "/" + self.filename[i1+7:-4]
                 bsoid_file = bsoid_dir + "/" + self.filename[i1+7:-4] + ".csv"
+                raw_bsoid_file = raw_dir + "/" + self.filename[i1+7:-4] + ".csv"
                 self.df_bsoid = pd.concat([self.df_head, self.df_bsoid])
+                try:
+                        os.mkdir(data_dir)
+                except:
+                        pass
+
+                try:
+                        os.mkdir(raw_dir)
+                except:
+                        pass
+
                 try:
                         os.mkdir(bsoid_dir)
                         self.df_bsoid.to_csv(bsoid_file, index=False)
+                        self.df_bsoid.to_csv(raw_bsoid_file, index=False)
                 except:
                         self.df_bsoid.to_csv(bsoid_file, index=False)
+                        self.df_bsoid.to_csv(raw_bsoid_file, index=False)
 
         def export_neuroexplorer(self):
                 for col in self.df_cont:

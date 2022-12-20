@@ -37,5 +37,9 @@ for bgInd = 1:length(bsoidGroupIDs)
 
 end
 
-std(bsoidGroupHandX,'omitnan')
+HandPosStats = table(bsoidGroupIDs, mean(bsoidGroupHandX,'omitnan')', std(bsoidGroupHandX,'omitnan')',sum(~isnan(bsoidGroupHandX))','VariableNames',{'GroupID','mean','std','n'});
+NosePosStats =  table(bsoidGroupIDs, mean(bsoidGroupNoseX,'omitnan')', std(bsoidGroupNoseX,'omitnan')', sum(~isnan(bsoidGroupNoseX))','VariableNames',{'GroupID','mean','std','n'});
+
+HandVelStats =  table(bsoidGroupIDs, mean(bsoidGroupHandX_vel,'omitnan')', std(bsoidGroupHandX_vel,'omitnan')', sum(~isnan(bsoidGroupHandX_vel))','VariableNames',{'GroupID','mean','std','n'});
+NoseVelStats =  table(bsoidGroupIDs, mean(bsoidGroupNoseX_vel,'omitnan')', std(bsoidGroupNoseX_vel,'omitnan')', sum(~isnan(bsoidGroupNoseX_vel))','VariableNames',{'GroupID','mean','std','n'});
 

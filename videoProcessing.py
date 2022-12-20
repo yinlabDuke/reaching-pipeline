@@ -70,7 +70,7 @@ def videoProcessing(filepath, crop, first, cutoff=None):
     input_vid = cv2.VideoCapture(filepath)
     cnt = 0
     savedFrames = []
-    for i in helper.progressbar(range(len(frames) + 100)):
+    for i in helper.progressbar(range(int(frames) + 100)):
         ret, frame = input_vid.read()
 
         if not ret:
@@ -82,9 +82,6 @@ def videoProcessing(filepath, crop, first, cutoff=None):
             output_vid.write(frame)
             savedFrames.append(cnt)
         cnt+=1
-
-        progress = cnt / frames * 100
-        print(int(progress), '%')
 
     input_vid.release()
     output_vid.release()
