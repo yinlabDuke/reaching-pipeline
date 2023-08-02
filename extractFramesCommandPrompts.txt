@@ -1,0 +1,10 @@
+python
+
+import deeplabcut 
+
+config_path = 'D:\\DLC Models\\lickingv2-sp-2023-02-28\\config.yaml'
+
+deeplabcut.extract_frames(config_path,mode = 'automatic',algo='kmeans',userfeedback='TRUE',crop='FALSE')
+
+-----open the gui:
+deeplabcut

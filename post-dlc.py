@@ -36,6 +36,7 @@ class post_dlc():
                 self.filename = None
                 self.savedFrames = None
                 self.dlc_file = dlc_file
+                self.dir = None
                 self.ne_file = None
                 self.bodyparts = {}
                 self.reachPeakTimes = None
@@ -46,7 +47,6 @@ class post_dlc():
 # * DLC, NE, and video files must have the same file names except video and DLC has "_modified" attached to the end
 # ==================================================================
         def upload_file(self, doc=None, dlc_file=None, video_file=None):
-
                 if self.dlc_file == None:
                         self.dlc_file = helper.search_for_file_path(titles="Upload the DLC file.", filetypes=[('dlc', '*.csv')])[0]
 
@@ -54,9 +54,9 @@ class post_dlc():
                         self.ne_file = self.dlc_file
                         i = self.dlc_file.index('_modified') - len(self.dlc_file) 
                         self.ne_file = (self.ne_file[0:i] + '.nev').replace('videos', 'neuroexplorer')
-                        
                         try:
                                 self.doc = nex.OpenDocument(self.ne_file)
+                                
                         except:
                                 print(self.ne_file)
                                 print("NeuroExplorer must be open. If NE is open, the NE document doesn't exist. Check to make sure the file is in the correct location. Processing rest of the videos.")
@@ -67,6 +67,7 @@ class post_dlc():
                                 video_file = (self.ne_file[0:-4] + ext).replace('neuroexplorer', 'videos')
                                 self.img, self.fps, self.framecount = helper.getVideo(video_file)
                                 if (self.fps < 1 ):
+                                        print("poop")
                                         continue
                                 else:
                                         break
@@ -113,7 +114,10 @@ class post_dlc():
                 setupNE.setupNE(self.doc, self.savedFrames, self.setting_file, self.ne_file)
                 nex.SaveDocument(self.doc)
                 self.frameTimes = self.doc["frameTimes"].Timestamps()[0: len(self.df)]
-
+                if len(self.df) != len(self.frameTimes):
+                        print("DLC csv file has " + str(len(self.df)) + " frames, but the video has " + str(len(self.frameTimes)) + " frames.")
+                        self.df = self.df[0:len(self.frameTimes)]
+                        
 # ==================================================================
 # SMOOTH DATA
 # ==================================================================
@@ -141,61 +145,17 @@ class post_dlc():
                 self.df.iloc[:, range(1, self.df.shape[1], 3)] = self.df.iloc[:, range(1, self.df.shape[1], 3)].applymap(lambda x: (x - self.origin[0]) * self.ratio)
                 self.df.iloc[:, range(2, self.df.shape[1], 3)] = self.df.iloc[:, range(2, self.df.shape[1], 3)].applymap(lambda y: (self.origin[1] - y) * self.ratio)
 
-        def dist_calc(self, body1, body2):
-                return [math.dist([self.df.iat[i, body1], self.df.iat[i, body1+1]], 
-                        [self.df.iat[i, body2], self.df.iat[i, body2+1]]) for i in range(self.df.shape[0])]
-
 # ==================================================================
 # FEATURE CALCULATIONS
 # ==================================================================
-        def vel_calc(self, feature):
-                ret = [(feature[i+1] - feature[i])/(1/self.fps) for i in range(self.df.shape[0] - 1)]
-                ret.insert(0, 0)
-                return ret
-        
-        def vel_calc2(self, body):
-                ret =  [math.dist([self.df.iat[i+1, body], self.df.iat[i+1, body+1]], 
-                        [self.df.iat[i, body], self.df.iat[i, body+1]]) / (1/self.fps) for i in range(self.df.shape[0] - 1)]
-                ret.insert(0, 0)
-                return ret
-
         def feature_calc(self):
                 bodyparts = self.df_head.iloc[0, :].tolist()
                 ref = {}
                 for i in range(1, len(bodyparts), 3):
                         ref[bodyparts[i]] = i
 
-                eye = self.bodyparts.get("eye")
-                nose = self.bodyparts.get("nose")
-                mouth = self.bodyparts.get("mouth")
-                hand = self.bodyparts.get("hand")
-                # nonreachhand = self.bodyparts.get("nonreachhand")
-                spout = self.bodyparts.get("spout")
-                # corner = self.bodyparts.get("corner")
+                d_cont = {}
 
-                hand2spout_dist = self.dist_calc(hand, spout)
-                nose2spout_dist = self.dist_calc(nose, spout)
-                hand2nose_dist = self.dist_calc(hand, nose)
-                hand2mouth_dist = self.dist_calc(hand, mouth)
-                # hand2hand_dist = self.dist_calc(hand, nonreachhand)
-
-                hand2spout_vel = self.vel_calc(hand2spout_dist)
-                nose2spout_vel = self.vel_calc(nose2spout_dist)
-                hand2nose_vel = self.vel_calc(hand2nose_dist)
-                hand2mouth_vel = self.vel_calc(hand2mouth_dist)
-                # hand2hand_vel = self.vel_calc(hand2hand_dist)
-                hand_vel = self.vel_calc2(hand)
-                handX_vel = self.vel_calc(self.df.iloc[:, hand])
-                noseX_vel = self.vel_calc(self.df.iloc[:, nose])
-
-                d_cont = {"hand2spout_dist": hand2spout_dist, "nose2spout_dist": nose2spout_dist, "hand2nose_dist": hand2nose_dist, 
-                        "hand2mouth_dist": hand2mouth_dist, "hand2spout_vel": hand2spout_vel,
-                        "nose2spout_vel": nose2spout_vel, "hand2nose_vel": hand2nose_vel,  "hand2mouth_vel": hand2mouth_vel,
-                        "hand_vel": hand_vel, "handX_vel": handX_vel, "noseX_vel": noseX_vel}
-
-                # Uncomment if you don't want any feature calculations
-                # d_cont = {}
-                
                 for b in self.bodyparts:
                         d_cont[b + "X"] = self.df.iloc[:, self.bodyparts.get(b)].tolist()
                         d_cont[b + "Y"] = self.df.iloc[:, self.bodyparts.get(b)+1].tolist()
@@ -205,15 +165,6 @@ class post_dlc():
                 self.frameTimes = self.doc["frameTimes"].Timestamps()
                 self.frameTimes = self.frameTimes[0: len(self.df_cont)]
                 self.df_cont["frameTimes"] = self.frameTimes
-
-                hand2spout_dist_np = np.array([i * -1 + 10 for i in hand2spout_dist])
-                reachPeakTimes_index = find_peaks(hand2spout_dist_np, height=1, distance=15, prominence=5, width=5)[0]
-                self.reachPeakTimes = [self.frameTimes[i] for i in reachPeakTimes_index if self.frameTimes[i] - self.frameTimes[i-1] < 0.2]
-
-
-                plt.plot(self.frameTimes, hand2spout_dist_np)
-                plt.scatter(self.reachPeakTimes, [1 for i in self.reachPeakTimes], color="red")
-                # plt.show()
                 plt.clf()
 
 # ==================================================================
@@ -251,17 +202,7 @@ class post_dlc():
                         if col == "frameTimes": continue
                         self.doc[col] = nex.NewContVarWithFloats(self.doc, self.fps)
                         self.doc[col].SetContVarTimestampsAndValues(self.df_cont["frameTimes"].tolist(), self.df_cont[col].tolist())
-
-
-# ==================================================================
-# EXPORT FEATURES TO NEUROEXPLORER
-# ==================================================================
                 self.doc["frameTimes"].SetTimestamps(self.df_cont["frameTimes"].tolist())
-                self.doc["reachPeakTimes"] = nex.NewEvent(self.doc, 0)
-                self.doc["reachPeakTimes"].SetTimestamps(self.reachPeakTimes)
-                self.doc['reachesDuringStim'] = nex.Sync(self.doc['reachPeakTimes'], self.doc['laserStimOnTimes'], -0.7, 0.7)
-                self.doc['reachesNoStim'] = nex.NotSync(self.doc['reachPeakTimes'], self.doc['laserStimOnTimes'], -0.7, 0.7)
-
                 nex.SaveDocument(self.doc)
                 nex.CloseDocument(self.doc)
 
@@ -273,14 +214,14 @@ class post_dlc():
                         self.smooth()
                         self.pix2mm()
                         self.feature_calc()
-                        self.export_bsoid_file()
                         self.export_neuroexplorer()
 
 
 if __name__ == "__main__":
-        dlc_files = helper.search_for_file_path(titles="Please select dlc files", filetypes=[('csv', '*filtered.csv')], dir=r"D:/")
+        dlc_files = helper.search_for_file_path(titles="Please select dlc files", filetypes=[('csv', '*.csv')], dir=dir)
         dlc_files = [f for f in dlc_files]
-        setting_file = helper.search_for_file_path(titles="Please upload the settings for NE", filetypes=[('yaml', '*.yaml')], dir=r"D:/")[0]
+        # setting_file = helper.search_for_file_path(titles="Please upload the settings for NE", filetypes=[('yaml', '*.yaml')], dir=dir)[0]
+        setting_file = r"D:\reaching-pipeline\dlc-settings\reaching-post-trigger-settings.yaml"
 
         tot = len(dlc_files)
         cnt = 0

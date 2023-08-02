@@ -93,7 +93,7 @@ def setupNE(doc, savedFrames, setting, ne_file):
         doc["frameBurstOnsets"] = nex.ISIFilter(doc["frameTimesOrig"], 0.1)
         doc["saveStartTime"] = nex.SelectTrials(doc["frameBurstOnsets"], "2")
         doc["frameTimes"] = nex.Sync(doc["frameTimesOrig"], doc["saveStartTime"], -0.01, 10000)
-
+        
         frameTimes = doc["frameTimes"].Timestamps()
         if frameTimes[1] > frameTimes[0] + 0.015: 
             frameTimes.pop(0)

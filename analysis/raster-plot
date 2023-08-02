@@ -1,0 +1,80 @@
+import sys
+sys.path.insert(1, r'D:\reaching-pipeline')
+from supplementary import helper
+import nex
+import matplotlib.pyplot as plt
+import numpy as np
+from sklearn.preprocessing import normalize
+
+def rasterplot(doc, neuron, ref, interval=1, bintime=10, showplot=False):
+    # Find reference interval 
+    ref_ts = doc[ref].Timestamps()
+    ref_interval = [(ref_ts[i]-1, ref_ts[i]+1, ref_ts[i]) for i in range(len(ref_ts))]
+
+    data = doc[neuron].Timestamps()
+    raster = []
+
+    # Create raster data
+    for i, intvl in enumerate(ref_interval):
+        trial = [i - intvl[2] for i in helper.findFrames(data, intvl[0], intvl[1])]
+        if len(trial) > 0:
+            raster.append(trial)
+
+
+    # Find average
+    avg = []
+    time = np.arange(-interval, interval, bintime*10**-3)
+
+    if len(raster) == 0:
+        return np.zeros(len(time)-1)
+    
+    for i, v in enumerate(raster):
+        avg.append(np.histogram(v, bins=list(time))[0])
+    
+    
+    raster_avg = np.mean(avg, axis=0)  
+
+    raster_avg = [x / (bintime * 10**(-3)) for x in raster_avg]
+
+
+
+    # Draw a spike raster plot
+    if showplot:
+        fig, axes = plt.subplots(2)
+        axes[0].eventplot(raster)
+        axes[0].set_title(neuron)
+        axes[0].set_xlabel('Time aligned to ' + ref)
+        axes[0].set_ylabel('Spike')
+        axes[1].plot(time[:-1], raster_avg)
+        axes[1].set_xlabel("")
+        plt.show()
+
+    return raster_avg
+
+def compileNeurons(doc):
+    rateMatrix = []
+    rateMatrixNorm = []
+    # Select neuron
+    nameOfNeurons = doc.NeuronNames()
+    for i in nameOfNeurons:
+        raster_avg = rasterplot(doc, i, ref="reachPeakTimes")
+        raster_avg_norm = raster_avg / np.linalg.norm(raster_avg) 
+        rateMatrix.append(raster_avg)
+        rateMatrixNorm.append(raster_avg_norm)
+   
+    return rateMatrix, rateMatrixNorm
+
+if __name__ == "__main__":
+    ne_files = helper.search_for_file_path(dir=r'D')
+    rateMatrix = []
+    rateMatrixNorm = []
+    fig, axes = plt.subplots(2)
+    for i in ne_files:
+        doc = nex.OpenDocument(i)
+        M = compileNeurons(doc)
+        rateMatrix += M[0]
+        rateMatrixNorm += M[1]
+    heatmap = axes[0].imshow(rateMatrixNorm, aspect='auto')
+    fig.colorbar(heatmap, ax=axes[0])
+    axes[1].plot(np.mean(rateMatrix, axis=0))
+    plt.show()

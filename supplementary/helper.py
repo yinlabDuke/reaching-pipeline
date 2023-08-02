@@ -74,6 +74,8 @@ def get_pixel2(img):
 def getVideo(video_file, frameNum=1):
     video = cv2.VideoCapture(video_file)
     fps = video.get(cv2.CAP_PROP_FPS)
+    print(video_file)
+    print(fps)
     framecount = int(video.get(cv2.CAP_PROP_FRAME_COUNT))
     video.set(1, frameNum)
     success, image = video.read()
@@ -175,3 +177,11 @@ def createVideo(filepath, filtered_frames):
 
 if __name__ == "__main__":
     trimFileName("Nov-04-2022_v2labels_pose_100HzD151_m71_100722_30Hz_30pulse_bilat_atNoseBB_0msDelay_modifiedDLC_resnet50_reaching-task2Nov3shuffle1_250000_filtered_corrected.csv", former="D151", latter="Delay")
+
+def findFrames(frameTimes, t1, t2):
+    ret = []
+    for i, v in enumerate(frameTimes):
+        if v > t1 - 0.005 and v < t2 + 0.005:
+            ret.append(v)
+    return ret
+
