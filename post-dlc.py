@@ -132,10 +132,11 @@ class post_dlc():
                 if self.ratio == None:
                         print("Left click two pixels for calibration. Right click for reference point. If you make a mistake, still complete all three clicks, then press enter..\n")
 
-                        check = 0
-                        while (check == 0):
-                                self.origin, cal_pixels = helper.get_pixel(self.img)
-                                check = int(input("Are you happy with the calibration? 1 for yes, 0 for no.\n"))
+                        self.origin, cal_pixels = helper.get_pixel(self.img)
+                        check = int(input("Are you happy with the calibration? 1 for yes, 0 for no.\n"))
+                        if check != 1:
+                                nex.CloseDocument(self.doc)
+                                exit()
 
                         pix_dist = math.dist(cal_pixels[0], cal_pixels[1])
 
