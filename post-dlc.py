@@ -212,9 +212,9 @@ class post_dlc():
         def post_dlc(self):
                 self.upload_file()
                 if (self.doc != None) and (self.fps > 1):
+                        self.pix2mm()
                         self.setup()
                         self.smooth()
-                        self.pix2mm()
                         self.feature_calc()
                         self.export_neuroexplorer()
 
