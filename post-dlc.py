@@ -54,6 +54,7 @@ class post_dlc():
                         self.ne_file = self.dlc_file
                         i = self.dlc_file.index('_modified') - len(self.dlc_file) 
                         self.ne_file = (self.ne_file[0:i] + '.nev').replace('videos', 'neuroexplorer')
+                        self.doc = nex.OpenDocument(self.ne_file)
                         try:
                                 self.doc = nex.OpenDocument(self.ne_file)
                                 

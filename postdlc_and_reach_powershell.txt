@@ -1,0 +1,6 @@
+Use anaconda powershell
+
+conda activate C:\Users\Public\Documents\DLCPUBLIC2
+
+in the reaching-pipeline directory, run 
+.\reach-script.sh

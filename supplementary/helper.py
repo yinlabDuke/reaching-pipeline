@@ -185,3 +185,9 @@ def findFrames(frameTimes, t1, t2):
             ret.append(v)
     return ret
 
+def nexReaderNames(vars):
+    return [i.Name for i in vars]
+
+def nexReaderIndex(vars, name):
+    return nexReaderNames(vars).index(name)
+
